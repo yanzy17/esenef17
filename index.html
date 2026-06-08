@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Digital Seller Super Tools</title>
+  <meta name="description" content="Dashboard static untuk ide produk digital, affiliate content, hook, caption, DM reply, pricing, kalender konten, offer, lisensi, deskripsi produk, dan Threads post." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="orb orb-one"></div>
+  <div class="orb orb-two"></div>
+
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="Navigasi desktop">
+      <a class="brand" href="#dashboard" data-tab="dashboard" aria-label="Digital Seller Super Tools">
+        <span class="brand-mark">DS</span>
+        <span><small>Seller OS</small><strong>Digital Seller<br>Super Tools</strong></span>
+      </a>
+      <nav class="side-nav" id="sideNav"></nav>
+      <div class="side-upgrade-card">
+        <span class="mini-badge">100% Static</span>
+        <h3>Siap deploy ke mana aja.</h3>
+        <p>Tanpa backend, tanpa API berbayar, tanpa framework berat. Semua berjalan dari browser.</p>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Toolkit jualan digital & affiliate</p>
+          <h1 id="pageTitle">Dashboard</h1>
+        </div>
+        <div class="topbar-actions">
+          <button class="ghost-btn" id="exportBtn" type="button">Export hasil aktif</button>
+          <button class="primary-btn" data-tab="product" type="button">Mulai Generate</button>
+        </div>
+      </header>
+
+      <section class="tab-panel active" id="dashboard">
+        <div class="hero-section">
+          <div class="hero-copy">
+            <span class="pill">✨ Dari ide sampai closing, satu dashboard</span>
+            <h2>Bikin produk digital, konten affiliate, offer, dan follow up yang siap dipakai jualan.</h2>
+            <p>Dirancang buat pemula yang jualan dari HP: tinggal isi konteks singkat, generate, copy, lalu posting atau kirim ke calon pembeli.</p>
+            <div class="hero-actions">
+              <button class="primary-btn" data-tab="affiliate" type="button">Buat Konten Affiliate</button>
+              <button class="secondary-btn" data-tab="description" type="button">Buat Deskripsi Produk</button>
+            </div>
+          </div>
+          <div class="hero-panel">
+            <div class="metric-card"><strong>12</strong><span>Tools utama</span></div>
+            <div class="metric-card"><strong>30</strong><span>Hari konten</span></div>
+            <div class="metric-card"><strong>1 klik</strong><span>Copy & export</span></div>
+            <div class="metric-card"><strong>0 API</strong><span>Full browser</span></div>
+          </div>
+        </div>
+
+        <div class="section-title"><span>01</span><div><h2>Tools Unggulan</h2><p>Pilih sesuai kebutuhan: riset ide, bikin konten, susun offer, atau follow up calon buyer.</p></div></div>
+        <div class="feature-grid" id="quickActions"></div>
+
+        <div class="dashboard-grid">
+          <article class="glass-card">
+            <span class="card-icon">🧭</span>
+            <h3>Cara Pakai</h3>
+            <ol class="pretty-list">
+              <li>Pilih tool dari sidebar, bottom nav, atau card fitur.</li>
+              <li>Isi input sejelas mungkin: audiens, masalah, benefit, produk.</li>
+              <li>Klik generate dan tunggu loading singkat.</li>
+              <li>Copy hasil, export `.txt`, atau cek lagi di Riwayat.</li>
+            </ol>
+          </article>
+          <article class="glass-card">
+            <span class="card-icon">🎯</span>
+            <h3>Cocok Untuk Siapa?</h3>
+            <div class="chip-list">
+              <span>Affiliate pemula</span><span>Creator digital product</span><span>Reseller template</span><span>Seller Lynk ID</span><span>Admin konten</span><span>Freelancer dari HP</span>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="tab-panel" id="product">
+        <div class="tool-intro"><span>💡</span><div><h2>Product Idea Generator</h2><p>Generate 10 ide produk digital lengkap dengan angle jualan dan alasan potensinya.</p></div></div>
+        <form class="tool-form" data-generator="product">
+          <label>Niche / skill<input name="niche" placeholder="Contoh: Canva, budgeting, AI untuk admin" required></label>
+          <label>Target audiens<input name="audience" placeholder="Contoh: ibu rumah tangga yang mau income online" required></label>
+          <label>Level user<select name="level" required><option>pemula</option><option>intermediate</option><option>expert</option></select></label>
+          <button class="primary-btn" type="submit">Generate ide produk</button>
+        </form>
+        <div class="output-wrap" data-output="product"></div>
+      </section>
+
+      <section class="tab-panel" id="affiliate">
+        <div class="tool-intro"><span>🤝</span><div><h2>Affiliate Content Generator</h2><p>Hook, caption, CTA, short video, Threads, komentar lanjutan, dan angle konten.</p></div></div>
+        <form class="tool-form" data-generator="affiliate">
+          <label>Nama produk<input name="productName" placeholder="Contoh: Course Edit Video HP" required></label>
+          <label>Target pembeli<input name="buyer" placeholder="Contoh: freelancer pemula" required></label>
+          <label>Masalah pembeli<textarea name="problem" placeholder="Contoh: bingung bikin video jualan yang kelihatan niat" required></textarea></label>
+          <label>Benefit produk<textarea name="benefit" placeholder="Contoh: bisa edit video promosi dari HP dengan alur yang gampang" required></textarea></label>
+          <label>Tone<select name="tone" required><option>santai</option><option>gen z</option><option>edukatif</option><option>soft selling</option><option>urgent</option></select></label>
+          <button class="primary-btn" type="submit">Generate konten affiliate</button>
+        </form>
+        <div class="output-wrap" data-output="affiliate"></div>
+      </section>
+
+      <section class="tab-panel" id="hook">
+        <div class="tool-intro"><span>🪝</span><div><h2>Hook Generator</h2><p>30+ hook casual Gen Z untuk Threads, TikTok, dan IG.</p></div></div>
+        <form class="tool-form" data-generator="hook">
+          <label>Topik / produk<input name="topic" placeholder="Contoh: template budgeting gaji UMR" required></label>
+          <label>Target audiens<input name="audience" placeholder="Contoh: karyawan pemula" required></label>
+          <label>Situasi utama<input name="situation" placeholder="Contoh: uang cepat habis sebelum akhir bulan" required></label>
+          <button class="primary-btn" type="submit">Generate 30+ hook</button>
+        </form>
+        <div class="output-wrap" data-output="hook"></div>
+      </section>
+
+      <section class="tab-panel" id="caption">
+        <div class="tool-intro"><span>✍️</span><div><h2>Caption + CTA Generator</h2><p>Caption multi-platform dan CTA dari soft sampai direct.</p></div></div>
+        <form class="tool-form" data-generator="caption">
+          <label>Produk<input name="product" placeholder="Contoh: Notion Planner Freelancer" required></label>
+          <label>Masalah audiens<textarea name="problem" placeholder="Contoh: kerjaan berantakan dan sering lupa follow up client" required></textarea></label>
+          <label>Solusi<textarea name="solution" placeholder="Contoh: dashboard siap pakai untuk task, invoice, dan client tracker" required></textarea></label>
+          <label>Promo / harga<input name="promo" placeholder="Contoh: promo Rp49.000 sampai Minggu" required></label>
+          <button class="primary-btn" type="submit">Generate caption & CTA</button>
+        </form>
+        <div class="output-wrap" data-output="caption"></div>
+      </section>
+
+      <section class="tab-panel" id="dm">
+        <div class="tool-intro"><span>💬</span><div><h2>DM Reply Assistant</h2><p>Balasan realistis untuk komen, objection, follow up, closing, dan after sales.</p></div></div>
+        <form class="tool-form" data-generator="dm">
+          <label>Nama produk<input name="product" placeholder="Contoh: Paket Template Konten" required></label>
+          <label>Harga / promo<input name="price" placeholder="Contoh: Rp79.000, bonus 3 template" required></label>
+          <label>Benefit utama<textarea name="benefit" placeholder="Contoh: bantu bikin konten jualan lebih cepat dan rapi" required></textarea></label>
+          <button class="primary-btn" type="submit">Generate template DM</button>
+        </form>
+        <div class="output-wrap" data-output="dm"></div>
+      </section>
+
+      <section class="tab-panel" id="pricing">
+        <div class="tool-intro"><span>💸</span><div><h2>Pricing Calculator</h2><p>Hitung profit, target harian/mingguan, range harga, dan strategi diskon.</p></div></div>
+        <form class="tool-form" data-generator="pricing">
+          <label>Modal<input name="cost" type="number" min="0" placeholder="50000" required></label>
+          <label>Harga jual<input name="price" type="number" min="0" placeholder="99000" required></label>
+          <label>Biaya platform<input name="fee" type="number" min="0" placeholder="5000" required></label>
+          <label>Target profit<input name="targetProfit" type="number" min="0" placeholder="3000000" required></label>
+          <label>Jumlah target penjualan<input name="targetSales" type="number" min="1" placeholder="50" required></label>
+          <button class="primary-btn" type="submit">Hitung pricing</button>
+        </form>
+        <div class="output-wrap" data-output="pricing"></div>
+      </section>
+
+      <section class="tab-panel" id="calendar">
+        <div class="tool-intro"><span>🗓️</span><div><h2>Content Calendar Generator</h2><p>Kalender 30 hari dengan tujuan konten, format, hook, caption, dan CTA.</p></div></div>
+        <form class="tool-form" data-generator="calendar">
+          <label>Niche<input name="niche" placeholder="Contoh: produktivitas freelancer" required></label>
+          <label>Produk utama<input name="product" placeholder="Contoh: Notion Client Tracker" required></label>
+          <label>Platform<select name="platform" required><option>Threads</option><option>IG</option><option>TikTok</option><option>YouTube Shorts</option></select></label>
+          <button class="primary-btn" type="submit">Generate kalender 30 hari</button>
+        </form>
+        <div class="output-wrap" data-output="calendar"></div>
+      </section>
+
+      <section class="tab-panel" id="offer">
+        <div class="tool-intro"><span>🧲</span><div><h2>Offer Builder</h2><p>Susun halaman penawaran mini yang terasa meyakinkan dan manusiawi.</p></div></div>
+        <form class="tool-form" data-generator="offer">
+          <label>Produk utama<input name="product" placeholder="Contoh: Kelas Mini Canva Jualan" required></label>
+          <label>Bonus<textarea name="bonus" placeholder="Contoh: template caption, checklist posting, grup support" required></textarea></label>
+          <label>Harga normal<input name="normalPrice" placeholder="Rp199.000" required></label>
+          <label>Harga promo<input name="promoPrice" placeholder="Rp79.000" required></label>
+          <label>Target audiens<input name="audience" placeholder="Contoh: pemula yang jualan dari HP" required></label>
+          <button class="primary-btn" type="submit">Bangun offer</button>
+        </form>
+        <div class="output-wrap" data-output="offer"></div>
+      </section>
+
+      <section class="tab-panel" id="license">
+        <div class="tool-intro"><span>🛡️</span><div><h2>License Text Generator</h2><p>Teks lisensi rapi untuk produk digital, resell, MRR, atau larangan jual ulang.</p></div></div>
+        <form class="tool-form" data-generator="license">
+          <label>Nama produk<input name="product" placeholder="Contoh: 100 Template Feed Canva" required></label>
+          <label>Nama seller / brand<input name="brand" placeholder="Contoh: Studio Digital Kita" required></label>
+          <label>Pilihan lisensi<select name="licenseType" required><option>Personal Use</option><option>Resell Rights</option><option>Master Resell Rights</option><option>Tidak boleh dijual ulang</option></select></label>
+          <button class="primary-btn" type="submit">Generate teks lisensi</button>
+        </form>
+        <div class="output-wrap" data-output="license"></div>
+      </section>
+
+      <section class="tab-panel" id="description">
+        <div class="tool-intro"><span>🛍️</span><div><h2>Product Description Generator</h2><p>Deskripsi produk siap tempel untuk Lynk ID, Gumroad, website, atau bio link.</p></div></div>
+        <form class="tool-form" data-generator="description">
+          <label>Nama produk<input name="product" placeholder="Contoh: 100 Prompt Jualan Affiliate" required></label>
+          <label>Target pembeli<input name="buyer" placeholder="Contoh: affiliate pemula" required></label>
+          <label>Masalah pembeli<textarea name="problem" placeholder="Contoh: bingung bikin konten promosi yang nggak maksa" required></textarea></label>
+          <label>Isi produk<textarea name="content" placeholder="Contoh: prompt hook, caption, CTA, kalender konten" required></textarea></label>
+          <label>Bonus<textarea name="bonus" placeholder="Contoh: checklist posting, swipe file DM" required></textarea></label>
+          <label>Harga<input name="price" placeholder="Contoh: Rp59.000" required></label>
+          <button class="primary-btn" type="submit">Generate deskripsi produk</button>
+        </form>
+        <div class="output-wrap" data-output="description"></div>
+      </section>
+
+      <section class="tab-panel" id="threads">
+        <div class="tool-intro"><span>🧵</span><div><h2>Threads Post Generator</h2><p>Post utama, komentar lanjutan, CTA komentar, dan hook clickbait aman.</p></div></div>
+        <form class="tool-form" data-generator="threads">
+          <label>Topik<input name="topic" placeholder="Contoh: jualan affiliate tanpa spam" required></label>
+          <label>Produk<input name="product" placeholder="Contoh: Affiliate Content Kit" required></label>
+          <label>Target audiens<input name="audience" placeholder="Contoh: pemula yang jualan dari HP" required></label>
+          <label>Masalah audiens<textarea name="problem" placeholder="Contoh: bingung promosi tanpa kelihatan maksa" required></textarea></label>
+          <button class="primary-btn" type="submit">Generate post Threads</button>
+        </form>
+        <div class="output-wrap" data-output="threads"></div>
+      </section>
+
+      <section class="tab-panel" id="history">
+        <div class="tool-intro"><span>🗃️</span><div><h2>Riwayat</h2><p>Hasil generate tersimpan di browser ini. Bisa copy ulang, export, hapus satu item, atau hapus semua.</p></div></div>
+        <div class="history-toolbar"><button class="danger-btn" id="clearHistory" type="button">Hapus semua riwayat</button></div>
+        <div class="history-list" id="historyList"></div>
+      </section>
+    </main>
+  </div>
+
+  <nav class="bottom-nav" id="bottomNav" aria-label="Navigasi mobile"></nav>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="script.js"></script>
+</body>
+</html>
