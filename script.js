@@ -1,280 +1,286 @@
-const HISTORY_KEY = "digitalSellerSuperToolsHistory";
-
-const tools = [
-  { id: "product-idea", icon: "💡", title: "Product Idea Generator", badge: "10 ide detail", desc: "Ubah niche atau skill menjadi ide produk digital yang siap divalidasi.", fields: [
-    { id: "niche", label: "Niche / skill", placeholder: "Contoh: desain Canva, parenting, Excel, affiliate TikTok" },
-    { id: "audience", label: "Target audiens", placeholder: "Contoh: ibu rumah tangga pemula bisnis online" },
-    { id: "level", label: "Level user", type: "select", options: ["Pemula", "Menengah", "Advanced", "Campuran"] }
-  ], generate: generateProductIdeas },
-  { id: "affiliate-content", icon: "🤝", title: "Affiliate Content Generator", badge: "Hook + caption", desc: "Buat bahan promosi affiliate yang natural, variatif, dan tidak terasa maksa.", fields: [
-    { id: "product", label: "Nama produk", placeholder: "Contoh: kelas editing video HP" },
-    { id: "buyer", label: "Target pembeli", placeholder: "Contoh: creator pemula yang mau jualan lewat konten" },
-    { id: "problem", label: "Masalah pembeli", placeholder: "Contoh: bingung bikin konten promosi yang tidak cringe" },
-    { id: "benefit", label: "Benefit produk", placeholder: "Contoh: template, panduan step-by-step, contoh caption", full: true },
-    { id: "tone", label: "Tone", type: "select", options: ["Santai Gen Z", "Warm mentor", "Profesional ringan", "Lucu tipis", "Urgent natural"] }
-  ], generate: generateAffiliateContent },
-  { id: "hook", icon: "🧲", title: "Hook Generator", badge: "30+ hook", desc: "Kumpulan hook casual untuk Threads, TikTok, dan Instagram.", fields: [
-    { id: "topic", label: "Topik / produk", placeholder: "Contoh: ebook budgeting untuk freelancer" },
-    { id: "audience", label: "Audiens", placeholder: "Contoh: freelancer pemula" },
-    { id: "problem", label: "Masalah utama", placeholder: "Contoh: penghasilan bocor dan sulit nabung", full: true }
-  ], generate: generateHooks },
-  { id: "caption-cta", icon: "✍️", title: "Caption + CTA Generator", badge: "Multi platform", desc: "Buat caption Threads, Instagram, TikTok, dan CTA dengan beberapa gaya.", fields: [
-    { id: "product", label: "Produk", placeholder: "Contoh: template Notion content planner" },
-    { id: "problem", label: "Masalah audiens", placeholder: "Contoh: ide konten berantakan" },
-    { id: "solution", label: "Solusi", placeholder: "Contoh: planner 30 hari siap isi" },
-    { id: "promo", label: "Promo / harga", placeholder: "Contoh: promo Rp49.000 sampai Minggu" }
-  ], generate: generateCaptionCta },
-  { id: "dm-reply", icon: "💬", title: "DM Reply Assistant", badge: "Template chat", desc: "Balasan santai untuk komentar, tanya harga, objection, follow up, dan after sales.", fields: [
-    { id: "product", label: "Produk", placeholder: "Contoh: mini course affiliate pemula" },
-    { id: "price", label: "Harga", placeholder: "Contoh: Rp79.000" },
-    { id: "bonus", label: "Bonus / benefit utama", placeholder: "Contoh: checklist posting, contoh skrip DM, update materi", full: true }
-  ], generate: generateDmReplies },
-  { id: "pricing", icon: "🧮", title: "Pricing Calculator", badge: "Profit & BEP", desc: "Hitung omzet, profit, BEP, target penjualan, dan strategi harga.", fields: [
-    { id: "cost", label: "Modal", type: "number", placeholder: "Contoh: 250000" },
-    { id: "price", label: "Harga jual", type: "number", placeholder: "Contoh: 99000" },
-    { id: "fee", label: "Biaya platform (%)", type: "number", placeholder: "Contoh: 5" },
-    { id: "targetProfit", label: "Target profit", type: "number", placeholder: "Contoh: 3000000" },
-    { id: "sales", label: "Jumlah target penjualan", type: "number", placeholder: "Contoh: 50" }
-  ], generate: generatePricing },
-  { id: "content-calendar", icon: "🗓️", title: "Content Calendar Generator", badge: "30 hari", desc: "Kalender konten 30 hari lengkap dengan hook, format, CTA, dan tujuan.", fields: [
-    { id: "niche", label: "Niche", placeholder: "Contoh: jualan template Canva" },
-    { id: "product", label: "Produk utama", placeholder: "Contoh: bundle template promosi UMKM" },
-    { id: "platform", label: "Platform", type: "select", options: ["Threads", "TikTok", "Instagram", "Semua platform"] }
-  ], generate: generateCalendar },
-  { id: "offer", icon: "🎁", title: "Offer Builder", badge: "Halaman penawaran", desc: "Susun offer stack, value breakdown, urgency, garansi, dan copywriting.", fields: [
-    { id: "product", label: "Produk utama", placeholder: "Contoh: kelas Canva jualan digital" },
-    { id: "bonus", label: "Bonus", placeholder: "Contoh: template konten, checklist launch, grup support" },
-    { id: "normal", label: "Harga normal", placeholder: "Contoh: Rp299.000" },
-    { id: "promo", label: "Harga promo", placeholder: "Contoh: Rp99.000" },
-    { id: "audience", label: "Target audiens", placeholder: "Contoh: pemula yang mau punya produk digital pertama", full: true }
-  ], generate: generateOffer },
-  { id: "license", icon: "📄", title: "License Text Generator", badge: "4 lisensi", desc: "Buat teks lisensi personal, resell, master resell, atau larangan resale.", fields: [
-    { id: "product", label: "Nama produk", placeholder: "Contoh: 100 Template Caption Affiliate" },
-    { id: "license", label: "Pilihan lisensi", type: "select", options: ["Personal Use", "Resell Rights", "Master Resell Rights", "Tidak boleh dijual ulang"] }
-  ], generate: generateLicense },
-  { id: "description", icon: "🛒", title: "Product Description Generator", badge: "Lynk ID/Gumroad", desc: "Deskripsi produk pendek, panjang, benefit, isi paket, dan CTA siap tempel.", fields: [
-    { id: "product", label: "Nama produk", placeholder: "Contoh: Ebook Launch Produk Digital 7 Hari" },
-    { id: "buyer", label: "Target pembeli", placeholder: "Contoh: pemula yang belum pernah jualan ebook" },
-    { id: "problem", label: "Masalah pembeli", placeholder: "Contoh: bingung mulai dari ide, konten, dan offer" },
-    { id: "content", label: "Isi produk", placeholder: "Contoh: modul PDF, checklist, template caption", full: true },
-    { id: "bonus", label: "Bonus", placeholder: "Contoh: swipe file hook dan pricing worksheet" },
-    { id: "price", label: "Harga", placeholder: "Contoh: Rp59.000" }
-  ], generate: generateDescription },
-  { id: "threads", icon: "🧵", title: "Threads Post Generator", badge: "Post + komentar", desc: "Ide post utama, komentar lanjutan, CTA komentar, dan hook clickbait aman.", fields: [
-    { id: "topic", label: "Topik", placeholder: "Contoh: cara mulai affiliate tanpa followers besar" },
-    { id: "product", label: "Produk", placeholder: "Contoh: panduan affiliate organik" },
-    { id: "audience", label: "Target audiens", placeholder: "Contoh: mahasiswa dan karyawan sampingan" },
-    { id: "problem", label: "Masalah audiens", placeholder: "Contoh: takut promosi karena belum punya personal brand", full: true }
-  ], generate: generateThreads }
+const badges = ["No API", "Bisa dari HP", "Affiliate Friendly", "Siap Posting", "100% Static"];
+const navItems = [
+  { id: "dashboard", label: "Dashboard", icon: "🏠", desc: "Ringkasan, quick access, dan cara pakai." },
+  { id: "angle", label: "Angle Finder", icon: "🎯", desc: "Cari sudut promosi yang natural dan relate." },
+  { id: "hook", label: "Hook Generator", icon: "🧲", desc: "Bikin orang berhenti scroll dari 3 detik pertama." },
+  { id: "caption", label: "Caption", icon: "✍️", desc: "Caption pendek, panjang, soft selling, dan review." },
+  { id: "cta", label: "CTA", icon: "📣", desc: "Ajak audiens komentar, DM, cek bio, atau checkout." },
+  { id: "script", label: "Script Video", icon: "🎬", desc: "Script TikTok, Reels, Shorts yang siap direkam." },
+  { id: "calendar", label: "30 Hari Konten", icon: "📅", desc: "Kalender konten harian biar nggak stuck." },
+  { id: "reply", label: "Reply DM", icon: "💬", desc: "Balasan komentar dan DM yang ramah." },
+  { id: "calculator", label: "Kalkulator Komisi", icon: "🧮", desc: "Hitung target order dan target komisi realistis." },
+  { id: "review", label: "Review Builder", icon: "⭐", desc: "Review produk yang jujur, natural, dan siap posting." },
+  { id: "history", label: "Riwayat", icon: "🗂️", desc: "Simpan, copy ulang, export, atau hapus hasil." }
 ];
 
-const $ = (selector, root = document) => root.querySelector(selector);
-const $$ = (selector, root = document) => Array.from(root.querySelectorAll(selector));
-const choice = (items) => items[Math.floor(Math.random() * items.length)];
-const money = (value) => new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(Number(value) || 0);
-const clean = (value) => String(value || "").trim();
-const todayText = () => new Date().toLocaleString("id-ID", { dateStyle: "medium", timeStyle: "short" });
+const toolMeta = {
+  angle: { title: "Product Angle Finder", eyebrow: "Tool 01", desc: "Ubah produk biasa jadi angle promosi yang lebih enak dibahas dan nggak terasa maksa." },
+  hook: { title: "Affiliate Hook Generator", eyebrow: "Tool 02", desc: "Kumpulan hook pendek untuk TikTok, Reels, Shorts, dan Threads dengan bahasa casual." },
+  caption: { title: "Caption Affiliate Generator", eyebrow: "Tool 03", desc: "Bikin caption affiliate yang natural, soft selling, review jujur, storytelling, sampai Threads." },
+  cta: { title: "CTA Affiliate Generator", eyebrow: "Tool 04", desc: "Pilih CTA yang halus, direct, Gen Z, urgent secukupnya, dan cocok buat closing." },
+  script: { title: "Script Video Affiliate", eyebrow: "Tool 05", desc: "Generate script video pendek lengkap dengan opening, scene, overlay, VO, B-roll, dan CTA." },
+  calendar: { title: "Ide Konten Affiliate 30 Hari", eyebrow: "Tool 06", desc: "Kalender konten 30 hari supaya promosi nggak cuma jualan terus dan audiens nggak bosan." },
+  reply: { title: "Komentar & DM Reply Assistant", eyebrow: "Tool 07", desc: "Template balasan untuk komentar dan DM yang sering muncul saat promosi affiliate." },
+  calculator: { title: "Komisi & Target Calculator", eyebrow: "Tool 08", desc: "Hitung komisi, target order, dan estimasi penghasilan agar target affiliate lebih kebayang." },
+  review: { title: "Product Review Builder", eyebrow: "Tool 09", desc: "Bikin review pendek, panjang, plus-minus, siapa yang cocok, dan CTA soft selling." }
+};
 
-function escapeHtml(text) {
-  return String(text).replace(/[&<>'"]/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" }[char]));
-}
-function list(items) { return `<ul>${items.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`; }
-function ordered(items) { return `<ol>${items.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ol>`; }
-function card(title, content) { return `<article class="output-card"><h3>${escapeHtml(title)}</h3>${content}</article>`; }
-function miniGrid(items) { return `<div class="mini-grid">${items.map(([k, v]) => `<div class="mini"><strong>${escapeHtml(k)}</strong><p>${escapeHtml(v)}</p></div>`).join("")}</div>`; }
-function sectionList(title, items, orderedList = false) { return card(title, orderedList ? ordered(items) : list(items)); }
+const formSchemas = {
+  angle: [
+    ["product", "Nama produk", "input", "Contoh: Mini blender portable"], ["category", "Kategori produk", "input", "Contoh: alat dapur"],
+    ["target", "Target pembeli", "input", "Contoh: anak kos dan pekerja sibuk"], ["problem", "Masalah utama pembeli", "textarea", "Contoh: pengen hidup sehat tapi males ribet"],
+    ["benefit", "Benefit produk", "textarea", "Contoh: bikin jus cepat, gampang dibawa, mudah dibersihkan"]
+  ],
+  hook: [
+    ["product", "Nama produk", "input", "Nama produk affiliate"], ["problem", "Masalah audiens", "textarea", "Masalah yang paling sering mereka rasain"],
+    ["benefit", "Benefit utama", "textarea", "Hasil yang mereka pengen dapat"], ["platform", "Platform", "select", ["TikTok", "IG Reels", "YouTube Shorts", "Threads"]]
+  ],
+  caption: [
+    ["product", "Nama produk", "input", "Nama produk affiliate"], ["target", "Target pembeli", "input", "Siapa yang paling cocok"],
+    ["problem", "Masalah pembeli", "textarea", "Masalah harian mereka"], ["benefit", "Benefit produk", "textarea", "Benefit paling menarik"],
+    ["tone", "Tone", "select", ["santai", "Gen Z", "edukatif", "soft selling", "review jujur"]]
+  ],
+  cta: [
+    ["product", "Produk", "input", "Nama produk"], ["goal", "Tujuan CTA", "select", ["komentar", "DM", "klik link", "cek bio", "checkout"]],
+    ["keyword", "Kata kunci CTA jika ada", "input", "Contoh: MAU, LINK, CEK"]
+  ],
+  script: [
+    ["product", "Nama produk", "input", "Nama produk"], ["problem", "Masalah pembeli", "textarea", "Masalah yang mau diangkat"],
+    ["benefit", "Benefit produk", "textarea", "Benefit utama"], ["duration", "Durasi", "select", ["15 detik", "30 detik", "60 detik"]],
+    ["style", "Style", "select", ["review", "storytelling", "problem solution", "listicle"]]
+  ],
+  calendar: [
+    ["niche", "Niche produk", "input", "Contoh: skincare, gadget, rumah tangga"], ["product", "Produk utama", "input", "Nama produk"],
+    ["target", "Target pembeli", "input", "Target audiens"], ["platform", "Platform", "select", ["TikTok", "IG Reels", "YouTube Shorts", "Threads", "Campuran"]]
+  ],
+  reply: [
+    ["product", "Nama produk", "input", "Nama produk"], ["price", "Harga produk", "input", "Contoh: Rp129.000"],
+    ["link", "Link affiliate/link bio", "input", "Contoh: link di bio / bit.ly/..."], ["tone", "Tone", "select", ["santai", "ramah", "semi profesional"]]
+  ],
+  calculator: [
+    ["price", "Harga produk", "number", "Contoh: 129000"], ["commission", "Persentase komisi", "number", "Contoh: 10"],
+    ["targetIncome", "Target penghasilan", "number", "Contoh: 3000000"], ["dailySales", "Estimasi penjualan per hari", "number", "Contoh: 3"]
+  ],
+  review: [
+    ["product", "Nama produk", "input", "Nama produk"], ["category", "Kategori produk", "input", "Kategori"],
+    ["pros", "Kelebihan produk", "textarea", "Apa yang bagus dari produk ini"], ["cons", "Kekurangan produk jika ada", "textarea", "Isi '-' kalau belum tahu"],
+    ["fit", "Cocok untuk siapa", "textarea", "Target pembeli paling cocok"], ["price", "Harga", "input", "Contoh: Rp129.000"]
+  ]
+};
 
-function init() {
-  renderNavigation();
-  renderQuickGrid();
-  renderToolTabs();
-  renderToolWorkspace(tools[0].id);
-  renderHistory();
-  $("#scrollHistoryBtn").addEventListener("click", () => scrollToId("history"));
-  $("#clearHistoryBtn").addEventListener("click", clearHistory);
-  document.addEventListener("click", handleGlobalClick);
+const state = { current: "dashboard", toastTimer: null };
+const $ = (selector) => document.querySelector(selector);
+const view = $("#viewContainer");
+
+function escapeHTML(value = "") {
+  return String(value).replace(/[&<>'"]/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" }[char]));
+}
+function slug(text) { return text.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, ""); }
+function money(value) { return new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(Number(value || 0)); }
+function nowLabel() { return new Date().toLocaleString("id-ID", { dateStyle: "medium", timeStyle: "short" }); }
+function showToast(message) {
+  const toast = $("#toast");
+  toast.textContent = message;
+  toast.classList.add("show");
+  clearTimeout(state.toastTimer);
+  state.toastTimer = setTimeout(() => toast.classList.remove("show"), 2200);
+}
+function textFromHTML(html) {
+  const temp = document.createElement("div");
+  temp.innerHTML = html;
+  return temp.innerText.trim();
 }
 
-function renderNavigation() {
-  const sideNav = $("#sideNav");
-  const bottomNav = $("#bottomNav");
-  const navItems = [{ id: "dashboard", icon: "🏠", title: "Dashboard" }, ...tools.slice(0, 8), { id: "history", icon: "🕘", title: "Riwayat" }];
-  sideNav.innerHTML = navItems.map((item) => `<button class="nav-link" data-tool-link="${item.id}"><span>${item.icon}</span>${item.title}</button>`).join("");
-  bottomNav.innerHTML = [navItems[0], tools[0], tools[1], tools[6], navItems.at(-1)].map((item) => `<button class="mobile-link" data-tool-link="${item.id}"><span>${item.icon}</span>${item.title.split(" ")[0]}</button>`).join("");
+function setupChrome() {
+  $("#heroBadges").innerHTML = badges.map((badge) => `<span class="badge">${badge}</span>`).join("");
+  const navHTML = navItems.map((item) => navButton(item)).join("");
+  $("#sideNav").innerHTML = navHTML;
+  $("#bottomNav").innerHTML = navItems.slice(0, 4).concat(navItems.find((x) => x.id === "history")).map((item) => navButton(item)).join("");
+  document.body.addEventListener("click", handleGlobalClick);
+  window.addEventListener("hashchange", route);
 }
-function renderQuickGrid() {
-  $("#quickGrid").innerHTML = tools.map((tool) => `<button class="feature-card" data-tool-link="${tool.id}"><span class="icon">${tool.icon}</span><h3>${tool.title}</h3><p>${tool.desc}</p><span class="badge">${tool.badge}</span></button>`).join("");
+function navButton(item) {
+  return `<button class="nav-link" data-route="${item.id}" type="button"><span class="nav-icon">${item.icon}</span><span>${item.label}</span></button>`;
 }
-function renderToolTabs() {
-  $("#toolTabs").innerHTML = tools.map((tool) => `<button class="tool-tab" data-tool-id="${tool.id}"><strong>${tool.icon} ${tool.title}</strong><span>${tool.badge}</span></button>`).join("");
-  $$(".tool-tab").forEach((button) => button.addEventListener("click", () => renderToolWorkspace(button.dataset.toolId)));
+function setActiveNav() {
+  document.querySelectorAll("[data-route]").forEach((el) => el.classList.toggle("active", el.dataset.route === state.current));
+  $("#heroSection").style.display = state.current === "dashboard" ? "grid" : "none";
 }
-function renderToolWorkspace(toolId) {
-  const tool = tools.find((item) => item.id === toolId) || tools[0];
-  $$(".tool-tab").forEach((tab) => tab.classList.toggle("active", tab.dataset.toolId === tool.id));
-  const fields = tool.fields.map((field) => {
-    const input = field.type === "select"
-      ? `<select id="${field.id}" name="${field.id}">${field.options.map((option) => `<option value="${escapeHtml(option)}">${escapeHtml(option)}</option>`).join("")}</select>`
-      : field.type === "number"
-        ? `<input id="${field.id}" name="${field.id}" type="number" min="0" placeholder="${escapeHtml(field.placeholder || "")}" />`
-        : `<textarea id="${field.id}" name="${field.id}" placeholder="${escapeHtml(field.placeholder || "")}"></textarea>`;
-    return `<div class="field-card ${field.full ? "full" : ""}"><label for="${field.id}">${field.label}</label>${input}</div>`;
-  }).join("");
-  $("#toolWorkspace").innerHTML = `
-    <div class="tool-header"><div><p class="eyebrow">${tool.badge}</p><h2>${tool.icon} ${tool.title}</h2><p>${tool.desc}</p></div></div>
-    <form id="toolForm" novalidate><div class="form-grid">${fields}</div><div class="error-box" id="errorBox"></div><div class="generate-row"><button class="primary-btn" type="submit">Generate Sekarang</button><button class="ghost-btn" type="button" id="resetBtn">Reset Form</button></div></form>
-    <div class="output-area" id="outputArea"><div class="empty-state"><strong>Belum ada hasil generate</strong><p>Isi form di atas, lalu klik generate. Hasil akan tampil dengan format rapi dan bisa langsung dicopy atau export TXT.</p></div></div>`;
-  $("#toolForm").addEventListener("submit", (event) => submitTool(event, tool));
-  $("#resetBtn").addEventListener("click", () => renderToolWorkspace(tool.id));
-  scrollToId("tools-unggulan", false);
+function route() {
+  state.current = (location.hash || "#dashboard").replace("#", "");
+  if (!navItems.some((item) => item.id === state.current)) state.current = "dashboard";
+  setActiveNav();
+  if (state.current === "dashboard") renderDashboard();
+  else if (state.current === "history") renderHistory();
+  else renderTool(state.current);
+  window.scrollTo({ top: 0, behavior: "smooth" });
 }
-function submitTool(event, tool) {
+function handleGlobalClick(event) {
+  const routeEl = event.target.closest("[data-route]");
+  if (routeEl) {
+    event.preventDefault();
+    location.hash = routeEl.dataset.route;
+    return;
+  }
+  const copyEl = event.target.closest("[data-copy]");
+  if (copyEl) copyText(decodeURIComponent(copyEl.dataset.copy));
+  const exportEl = event.target.closest("[data-export]");
+  if (exportEl) exportText(decodeURIComponent(exportEl.dataset.export), exportEl.dataset.filename || "affiliate-output.txt");
+  const deleteEl = event.target.closest("[data-delete]");
+  if (deleteEl) deleteHistory(deleteEl.dataset.delete);
+  if (event.target.matches("#clearHistory")) clearHistory();
+}
+async function copyText(text) {
+  try {
+    await navigator.clipboard.writeText(text);
+  } catch (error) {
+    const helper = document.createElement("textarea");
+    helper.value = text;
+    helper.setAttribute("readonly", "");
+    helper.style.position = "fixed";
+    helper.style.opacity = "0";
+    document.body.appendChild(helper);
+    helper.select();
+    document.execCommand("copy");
+    helper.remove();
+  }
+  showToast("Berhasil disalin");
+}
+function exportText(text, filename) {
+  const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  link.click();
+  URL.revokeObjectURL(url);
+  showToast("Berhasil diexport");
+}
+
+function renderHeader(title, eyebrow, desc) {
+  return `<div class="view-header"><span class="eyebrow">${eyebrow}</span><h2>${title}</h2><p>${desc}</p></div>`;
+}
+function renderDashboard() {
+  view.innerHTML = `${renderHeader("Dashboard Affiliate Promo Assistant", "Mini SaaS Dashboard", "Pilih tools sesuai kebutuhan promosi kamu: mau cari angle, bikin hook, caption, CTA, script video, sampai balas DM juga bisa.")}
+  <div class="view-body grid">
+    <div class="badge-row">${badges.map((badge) => `<span class="badge light">${badge}</span>`).join("")}</div>
+    <div class="grid three">
+      <div class="stat-card"><p>Fokus tools</p><strong>Siap Posting</strong><p>Output dibuat biar bisa langsung dicopy ke konten, bukan teori panjang.</p></div>
+      <div class="stat-card"><p>Mode kerja</p><strong>Tanpa API</strong><p>Semua template berjalan di browser dan bisa dipakai dari HP.</p></div>
+      <div class="stat-card"><p>Target</p><strong>Pemula</strong><p>Cocok buat yang sudah punya link tapi bingung mulai promosi.</p></div>
+    </div>
+    <div class="grid two">
+      <div class="form-panel"><h3>Cara pakai 3 langkah</h3><div class="grid steps"><div class="step"><div><strong>Masukkan produk dan target pembeli</strong><p>Tulis produk, masalah audiens, benefit, harga, atau link sesuai tools yang dipilih.</p></div></div><div class="step"><div><strong>Klik generate</strong><p>Tools akan bikin output dengan bahasa casual, natural, dan nggak terlalu hard selling.</p></div></div><div class="step"><div><strong>Copy hasil dan pakai</strong><p>Pakai buat caption, video pendek, komentar, DM, Threads, atau evaluasi target komisi.</p></div></div></div></div>
+      <div class="form-panel"><h3>Cocok untuk siapa?</h3><ul><li>Affiliator pemula yang udah punya link tapi bingung promosi.</li><li>Kreator kecil yang ingin konten lebih relate dan nggak kaku.</li><li>Seller yang susah bikin angle konten harian.</li><li>Orang yang postingnya sepi klik, komentar, dan pembeli.</li></ul></div>
+    </div>
+    <div><h3>Quick Access Tools</h3><div class="grid three">${navItems.filter((item) => !["dashboard", "history"].includes(item.id)).map((item) => `<article class="feature-card" data-route="${item.id}"><div class="icon">${item.icon}</div><h3>${item.label}</h3><p>${item.desc}</p></article>`).join("")}</div></div>
+  </div>`;
+}
+function renderTool(id) {
+  const meta = toolMeta[id];
+  view.innerHTML = `${renderHeader(meta.title, meta.eyebrow, meta.desc)}<div class="view-body"><form class="form-panel" id="toolForm"><div class="error-box" id="errorBox"></div><div class="form-grid two">${formSchemas[id].map(fieldHTML).join("")}</div><button class="btn primary full" type="submit">✨ Generate Hasil Siap Pakai</button></form><div class="output-area" id="outputArea">${emptyState("Isi form dulu, nanti hasil generate muncul dalam card rapi di sini.")}</div></div>`;
+  $("#toolForm").addEventListener("submit", (event) => handleGenerate(event, id));
+}
+function fieldHTML([name, label, type, data]) {
+  if (type === "select") return `<div class="field"><label for="${name}">${label}</label><select id="${name}" name="${name}">${data.map((option) => `<option>${option}</option>`).join("")}</select></div>`;
+  if (type === "textarea") return `<div class="field"><label for="${name}">${label}</label><textarea id="${name}" name="${name}" placeholder="${data}"></textarea></div>`;
+  return `<div class="field"><label for="${name}">${label}</label><input id="${name}" name="${name}" type="${type}" placeholder="${data}" /></div>`;
+}
+function emptyState(message) { return `<div class="empty-state"><div class="empty-icon">🌱</div><h3>Belum ada hasil</h3><p>${message}</p></div>`; }
+function handleGenerate(event, id) {
   event.preventDefault();
-  const form = event.currentTarget;
-  const values = Object.fromEntries(tool.fields.map((field) => [field.id, clean(form.elements[field.id]?.value)]));
-  const missing = tool.fields.filter((field) => !values[field.id]);
+  const form = new FormData(event.target);
+  const data = Object.fromEntries(form.entries());
+  const missing = formSchemas[id].filter(([name]) => !String(data[name] || "").trim()).map(([, label]) => label);
   const errorBox = $("#errorBox");
   if (missing.length) {
-    errorBox.textContent = `Isi dulu: ${missing.map((field) => field.label).join(", ")}. Biar hasilnya tidak generic dan lebih siap dipakai.`;
+    errorBox.textContent = `Isi dulu: ${missing.join(", ")}. Biar outputnya nggak ngawang dan lebih siap dipakai.`;
     errorBox.classList.add("show");
     return;
   }
   errorBox.classList.remove("show");
-  const output = $("#outputArea");
-  output.innerHTML = `<div class="loading"><span class="spinner"></span>Lagi meracik hasil yang natural dan siap jual...</div>`;
+  const outputArea = $("#outputArea");
+  outputArea.innerHTML = `<div class="loading"><div class="spinner"></div><span>Lagi ngeracik output yang nggak kaku...</span></div>`;
   setTimeout(() => {
-    const html = tool.generate(values);
-    const text = htmlToText(html);
-    output.innerHTML = `<div class="result-actions"><button class="secondary-btn" data-copy-result>Copy Hasil</button><button class="ghost-btn" data-export-result>Export .txt</button></div>${html}`;
-    output.dataset.resultText = text;
-    output.dataset.resultTitle = tool.title;
-    addHistory(tool.title, text);
-  }, 450);
+    const results = generators[id](cleanData(data));
+    outputArea.innerHTML = results.map((result, index) => resultCard(result.title, result.html, `${id}-${index}`)).join("");
+    saveHistory(id, toolMeta[id].title, results.map((item) => `${item.title}\n${textFromHTML(item.html)}`).join("\n\n---\n\n"));
+    showToast("Hasil berhasil dibuat");
+  }, 650);
 }
-function handleGlobalClick(event) {
-  const link = event.target.closest("[data-tool-link]");
-  if (link) {
-    const id = link.dataset.toolLink;
-    if (tools.some((tool) => tool.id === id)) renderToolWorkspace(id);
-    scrollToId(id === "dashboard" || id === "history" ? id : "tools-unggulan");
-  }
-  if (event.target.matches("[data-copy-result]")) copyText($("#outputArea").dataset.resultText || "");
-  if (event.target.matches("[data-export-result]")) exportText($("#outputArea").dataset.resultTitle, $("#outputArea").dataset.resultText || "");
-  const historyCopy = event.target.closest("[data-history-copy]");
-  if (historyCopy) copyText(getHistory()[Number(historyCopy.dataset.historyCopy)]?.text || "");
-  const historyDelete = event.target.closest("[data-history-delete]");
-  if (historyDelete) deleteHistory(Number(historyDelete.dataset.historyDelete));
+function cleanData(data) {
+  return Object.fromEntries(Object.entries(data).map(([key, value]) => [key, escapeHTML(String(value).trim())]));
 }
-function scrollToId(id, smooth = true) { document.getElementById(id)?.scrollIntoView({ behavior: smooth ? "smooth" : "auto", block: "start" }); }
+function resultCard(title, html, filenameSeed) {
+  const plain = textFromHTML(`<h3>${title}</h3>${html}`);
+  return `<article class="result-card"><div class="result-head"><h3>${title}</h3><div class="result-actions"><button class="icon-btn" type="button" data-copy="${encodeURIComponent(plain)}">Copy</button><button class="icon-btn" type="button" data-export="${encodeURIComponent(plain)}" data-filename="${slug(filenameSeed)}.txt">Export</button></div></div><div class="result-content">${html}</div></article>`;
+}
 
-function htmlToText(html) {
-  const box = document.createElement("div"); box.innerHTML = html;
-  box.querySelectorAll("h3,h4").forEach((el) => { el.textContent = `\n${el.textContent}\n`; });
-  box.querySelectorAll("li").forEach((el) => { el.textContent = `• ${el.textContent}\n`; });
-  return box.textContent.replace(/\n{3,}/g, "\n\n").trim();
+const list = (items) => `<ul>${items.map((item) => `<li>${item}</li>`).join("")}</ul>`;
+const sections = (items) => items.map(([title, body]) => {
+  const content = Array.isArray(body) ? list(body) : String(body).trim().startsWith("<") ? body : `<p>${body}</p>`;
+  return `<div class="result-section"><strong>${title}</strong>${content}</div>`;
+}).join("");
+const pick = (arr, i) => arr[i % arr.length];
+
+const generators = {
+  angle: (d) => {
+    const bases = ["problem harian", "hemat waktu", "pemula friendly", "hasil kecil yang kelihatan", "anti ribet", "upgrade rutinitas", "budget sadar", "review jujur", "before-after", "rekomendasi teman"];
+    const angleItems = bases.map((base, i) => `<li><strong>${i + 1}. Angle ${base}:</strong> posisikan ${d.product} sebagai solusi buat ${d.target} yang lagi ngalamin ${d.problem}. Ide konten: buka dengan situasi real, tunjukin momen pakai produk, lalu tutup dengan CTA “kalau mau linknya, aku taruh di bio/DM ya”.</li>`).join("");
+    return [
+      { title: "10 Angle Promosi Produk", html: `<ol>${angleItems}</ol>` },
+      { title: "Pemetaan Promosi yang Enak Dipakai", html: sections([["Pain point pembeli", `${d.target} biasanya nggak butuh penjelasan panjang. Mereka butuh merasa, “iya nih, ini masalah gue.” Angkat masalah: ${d.problem}.`], ["Alasan produk menarik", `${d.product} menarik karena benefit utamanya jelas: ${d.benefit}. Fokuskan konten ke perubahan kecil yang terasa setelah produk dipakai.`], ["Cara memposisikan produk", `Jangan langsung bilang “beli sekarang”. Posisikan sebagai rekomendasi ringan di kategori ${d.category}: “aku nemu yang lumayan ngebantu buat masalah ini.”`], ["Angle paling mudah buat pemula", `Mulai dari angle problem harian + review jujur. Ini paling natural karena kamu cukup cerita masalah, tunjukin produk, lalu kasih pendapat singkat.`]]) }
+    ];
+  },
+  hook: (d) => {
+    const cats = ["Problem aware", "Curiosity", "Before-after", "Review style", "Soft selling", "Social proof", "Beginner friendly", "Clickbait halus"];
+    let count = 0;
+    return [{ title: "30 Hook Affiliate Siap Pakai", html: cats.map((cat, catIndex) => `<div class="result-section"><strong>${cat}</strong><ol>${Array.from({ length: catIndex < 6 ? 4 : 3 }, () => { count += 1; return `<li>${pick([`Kalau kamu lagi ${d.problem}, ${d.product} ini worth buat dilirik dulu.`, `Aku kira ${d.benefit} itu ribet, ternyata ada cara yang lebih simpel.`, `Stop scroll bentar, ini buat kamu yang pengen ${d.benefit} tanpa drama.`, `Jujur, aku baru ngeh kenapa banyak pemula suka mulai dari ${d.product}.`, `Sebelum beli ${d.product}, coba cek ini biar nggak salah ekspektasi.`], count)} Cocok buat ${d.platform}.</li>`; }).join("")}</ol></div>`).join("") }];
+  },
+  caption: (d) => {
+    const make = (type, n, long = false) => Array.from({ length: n }, (_, i) => `<li><strong>${type} ${i + 1}:</strong> ${long ? `Aku paham banget kalau ${d.target} sering ngerasa ${d.problem}. Makanya ${d.product} bisa jadi opsi yang masuk akal buat dicoba pelan-pelan. Benefit yang paling kerasa: ${d.benefit}. Bukan berarti wajib beli sekarang, tapi kalau kamu lagi cari solusi yang nggak ribet, ini boleh banget masuk wishlist.` : `Buat ${d.target} yang lagi ${d.problem}, ${d.product} ini bisa jadi shortcut kecil buat ${d.benefit}.`}</li>`).join("");
+    return [{ title: `Caption Affiliate Tone ${d.tone}`, html: sections([["5 caption pendek", `<ol>${make("Pendek", 5)}</ol>`], ["5 caption panjang", `<ol>${make("Panjang", 5, true)}</ol>`], ["5 caption soft selling", `<ol>${make("Soft selling", 5)}</ol>`], ["5 caption review jujur", `<ol>${make("Review jujur", 5, true)}</ol>`], ["5 caption storytelling", `<ol>${make("Storytelling", 5, true)}</ol>`], ["5 caption Threads", `<ol>${make("Threads", 5)}</ol>`], ["5 caption TikTok/IG", `<ol>${make("TikTok/IG", 5)}</ol>`]]) }];
+  },
+  cta: (d) => {
+    const keyword = d.keyword || "MAU";
+    const groups = ["CTA halus", "CTA direct", "CTA Gen Z", "CTA urgent tapi tidak maksa", "CTA komentar Threads", "CTA cek bio", "CTA checkout", "CTA follow up"];
+    return [{ title: "20 CTA Affiliate Siap Pakai", html: sections(groups.map((group, i) => [group, Array.from({ length: i < 4 ? 3 : 2 }, (_, j) => pick([`Kalau kamu mau aku kirimin detail ${d.product}, komen “${keyword}” ya.`, `Linknya aku taruh di bio, cek pelan-pelan dulu biar cocok sama kebutuhan kamu.`, `Kalau masih ragu, DM aja. Aku bantu jelasin yang paling relevan tanpa maksa checkout.`, `Buat yang pengen langsung coba, bisa klik link dan cek varian yang paling pas.`, `Simpan dulu postingan ini, nanti pas butuh ${d.product} kamu nggak perlu cari dari nol.`], i + j))])) }];
+  },
+  script: (d) => Array.from({ length: 5 }, (_, i) => ({ title: `Script Video ${i + 1} - ${d.duration}`, html: sections([["Opening 3 detik pertama", pick([`“Kamu juga sering ${d.problem}? Aku nemu cara yang lebih simpel.”`, `“Ini bukan produk ajaib, tapi lumayan ngebantu kalau kamu pengen ${d.benefit}.”`, `“Sebelum beli ${d.product}, lihat ini dulu biar ekspektasinya pas.”`], i)], ["Alur scene", [`Scene 1: tunjukin masalah nyata yang sering dialami audiens.`, `Scene 2: masukin ${d.product} sebagai solusi, jangan terlalu jualan.`, `Scene 3: tunjukin benefit: ${d.benefit}.`, `Scene 4: kasih opini singkat ala ${d.style}.`]], ["Teks overlay", [`Masalah: ${d.problem}`, `Solusi simpel: ${d.product}`, `Benefit: ${d.benefit}`, `Cek link kalau cocok sama kebutuhanmu`]], ["Voice over", `“Awalnya aku juga mikir ini bakal ribet, tapi ternyata ${d.product} cukup membantu buat ${d.benefit}. Kalau kamu lagi ngalamin ${d.problem}, produk ini bisa jadi opsi yang worth dicek dulu.”`], ["CTA akhir", `“Kalau mau linknya, cek bio atau komen ‘mau’. Aku bantu arahin biar nggak salah pilih.”`], ["Ide visual/B-roll", [`Close up produk`, `Momen sebelum pakai`, `Cara pakai singkat`, `Hasil atau perubahan kecil`, `Screenshot komentar/pertanyaan audiens`]], ["Caption singkat pendukung", `Buat kamu yang lagi ${d.problem}, ini salah satu opsi yang bisa dicoba tanpa harus ribet. Link ada di bio ya.`]]) })),
+  calendar: (d) => [{ title: "Kalender Konten Affiliate 30 Hari", html: `<ol>${Array.from({ length: 30 }, (_, i) => { const goals = ["edukasi", "trust", "review", "promosi", "engagement"]; const formats = ["video pendek", "carousel", "Threads", "story", "review singkat"]; const goal = pick(goals, i); return `<li><strong>Hari ke-${i + 1}:</strong> Tema: ${pick([`masalah umum di niche ${d.niche}`, `cara memilih ${d.product}`, `review jujur pemakaian`, `kesalahan pemula`, `tips hemat sebelum beli`], i)}. Hook: “Kalau kamu ${d.target}, jangan skip ini dulu.” Format: ${pick(formats, i)}. Caption: “Ini insight kecil buat yang lagi cari ${d.product}.” CTA: “Komen kalau mau link/rekomendasi.” Tujuan: ${goal}. Platform: ${d.platform}.</li>`; }).join("")}</ol>` }],
+  reply: (d) => [{ title: `Template Balasan Komentar & DM (${d.tone})`, html: sections([["Orang komen “mau”", `Mauu, aku kirimin ya. Ini link/detailnya: ${d.link}. Coba cek dulu variannya, kalau bingung pilih yang mana boleh tanya aku.`], ["Orang tanya harga", `Harganya sekitar ${d.price}. Menurutku worth dicek kalau kamu memang lagi butuh ${d.product}, tapi tetap sesuaikan sama budget ya.`], ["Orang tanya link", `Linknya di sini ya: ${d.link}. Aku saranin cek detail produk dan review pembeli dulu biar makin yakin.`], ["Orang bilang mahal", `Iya, kalau dilihat sekilas memang berasa lumayan. Tapi coba bandingin sama benefit dan seberapa sering bakal dipakai. Kalau belum urgent, wishlist dulu juga nggak apa-apa.`], ["Orang minta rekomendasi", `Kalau kebutuhanmu mirip sama yang aku bahas, ${d.product} bisa jadi opsi. Tapi kalau kamu ceritain kebutuhanmu, aku bantu arahin yang paling pas.`], ["Orang ragu produk", `Wajar kok ragu. Coba cek dulu review pembeli, bahan/spesifikasi, dan kebijakan toko. Jangan checkout kalau belum cocok.`], ["Orang tanya cara beli", `Klik link ${d.link}, pilih varian, masukin alamat, lalu checkout seperti biasa. Kalau mentok di bagian pilihan, kabarin aku ya.`], ["Follow up halus", `Hai, kemarin sempat nanya ${d.product}. Masih butuh dibantu pilih atau udah aman? Aku bantu kalau masih bingung.`], ["Closing komentar", `Aku taruh linknya ya. Semoga cocok sama kebutuhan kamu, jangan lupa cek detail produknya dulu.`], ["Closing DM", `Makasih udah nanya. Semoga rekomendasinya membantu, dan semoga kamu dapat pilihan yang paling pas.`], ["After sales", `Kalau produknya udah sampai, cobain pelan-pelan dulu ya. Kalau ada yang bikin bingung, boleh cerita. Semoga kepakai banget!`]]) }],
+  calculator: (d) => {
+    const price = Number(d.price), rate = Number(d.commission) / 100, target = Number(d.targetIncome), daily = Number(d.dailySales);
+    const perOrder = price * rate;
+    const dailyTarget = Math.ceil(target / 30 / perOrder), weeklyTarget = Math.ceil(target / 4 / perOrder), monthlyTarget = Math.ceil(target / perOrder);
+    const statHTML = `<div class="grid three"><div class="stat-card"><p>Komisi per order</p><strong>${money(perOrder)}</strong></div><div class="stat-card"><p>Target order harian</p><strong>${dailyTarget} order</strong></div><div class="stat-card"><p>Target order bulanan</p><strong>${monthlyTarget} order</strong></div></div>`;
+    const detailHTML = sections([
+      ["Target order", [`Harian: ${dailyTarget} order`, `Mingguan: ${weeklyTarget} order`, `Bulanan: ${monthlyTarget} order`]],
+      ["Estimasi penghasilan", [`Harian dari ${daily} penjualan: ${money(perOrder * daily)}`, `Mingguan: ${money(perOrder * daily * 7)}`, `Bulanan: ${money(perOrder * daily * 30)}`]],
+      ["Catatan strategi", `Kalau target terasa berat, jangan cuma tambah posting. Perbaiki hook, ulangi angle yang dapat komentar, dan pakai produk mid ticket dengan komisi sehat.`],
+      ["Saran level produk", [`Low ticket: mudah closing, cocok buat latihan volume.`, `Mid ticket: paling seimbang untuk pemula yang mulai serius.`, `High ticket: komisi besar, tapi butuh trust dan review lebih kuat.`]]
+    ]);
+    return [{ title: "Ringkasan Target Komisi", html: `${statHTML}${detailHTML}` }];
+  },
+  review: (d) => [{ title: `Review Builder - ${d.product}`, html: sections([["Review pendek", `${d.product} adalah produk ${d.category} yang cocok buat kamu yang butuh solusi praktis. Plus utamanya: ${d.pros}. Kekurangannya: ${d.cons}.`], ["Review panjang", `Kalau kamu lagi cari ${d.category}, ${d.product} cukup menarik buat dicek karena punya beberapa kelebihan yang relevan: ${d.pros}. Tapi biar fair, bagian yang perlu dipertimbangkan adalah ${d.cons}. Dengan harga ${d.price}, produk ini paling masuk akal buat ${d.fit}.`], ["Poin plus", d.pros.split(",").map((x) => x.trim()).filter(Boolean)], ["Poin minus", d.cons === "-" ? ["Belum ada catatan minus spesifik. Tetap cek review pembeli sebelum checkout."] : d.cons.split(",").map((x) => x.trim()).filter(Boolean)], ["Siapa yang cocok beli", d.fit], ["Siapa yang kurang cocok", `Kurang cocok buat orang yang belum butuh ${d.category} atau masih cari opsi paling murah tanpa peduli fitur.`], ["Kesimpulan review", `Worth dicek kalau benefitnya sesuai kebutuhanmu. Jangan beli karena FOMO, beli kalau memang problem kamu nyambung.`], ["CTA soft selling", `Kalau mau cek detail dan harga terbaru, linknya bisa kamu lihat di bio/DM aku ya.`], ["Versi Threads", `${d.product} ini menarik karena ${d.pros}. Tapi tetap ada catatan: ${d.cons}. Cocok buat ${d.fit}. Menurutku cek detail dulu sebelum checkout biar nggak salah ekspektasi.`], ["Versi TikTok/IG caption", `Review singkat ${d.product}: plusnya ${d.pros}. Minusnya ${d.cons}. Kalau kamu termasuk ${d.fit}, ini boleh masuk wishlist.`]]) }]
+};
+
+function getHistory() { return JSON.parse(localStorage.getItem("affiliatePromoHistory") || "[]"); }
+function setHistory(items) { localStorage.setItem("affiliatePromoHistory", JSON.stringify(items)); }
+function saveHistory(toolId, feature, content) {
+  const items = getHistory();
+  items.unshift({ id: crypto.randomUUID(), toolId, feature, date: nowLabel(), content, preview: content.slice(0, 180) });
+  setHistory(items.slice(0, 60));
 }
-async function copyText(text) {
-  if (!text) return;
-  try { await navigator.clipboard.writeText(text); }
-  catch { const area = document.createElement("textarea"); area.value = text; document.body.append(area); area.select(); document.execCommand("copy"); area.remove(); }
-  showToast("Berhasil disalin");
-}
-function exportText(title, text) {
-  const content = `${title || "Digital Seller Super Tools"}\nTanggal: ${todayText()}\n\n${text}`;
-  const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a"); a.href = url; a.download = `${(title || "hasil-generate").toLowerCase().replace(/[^a-z0-9]+/g, "-")}.txt`; a.click(); URL.revokeObjectURL(url);
-  showToast("Export .txt berhasil");
-}
-function showToast(message) { const toast = $("#toast"); toast.textContent = message; toast.classList.add("show"); setTimeout(() => toast.classList.remove("show"), 2200); }
-function getHistory() { return JSON.parse(localStorage.getItem(HISTORY_KEY) || "[]"); }
-function saveHistory(items) { localStorage.setItem(HISTORY_KEY, JSON.stringify(items)); renderHistory(); }
-function addHistory(feature, text) { saveHistory([{ feature, date: todayText(), text }, ...getHistory()].slice(0, 30)); }
-function deleteHistory(index) { const items = getHistory(); items.splice(index, 1); saveHistory(items); showToast("Riwayat dihapus"); }
-function clearHistory() { saveHistory([]); showToast("Semua riwayat dihapus"); }
 function renderHistory() {
   const items = getHistory();
-  $("#historyList").innerHTML = items.length ? items.map((item, index) => `<article class="history-item"><div class="history-meta"><strong>${escapeHtml(item.feature)}</strong><span>${escapeHtml(item.date)}</span></div><p class="history-preview">${escapeHtml(item.text)}</p><div class="history-actions"><button class="secondary-btn" data-history-copy="${index}">Copy ulang</button><button class="danger-btn" data-history-delete="${index}">Hapus</button></div></article>`).join("") : `<div class="empty-state"><strong>Riwayat masih kosong</strong><p>Setiap hasil generate akan tersimpan otomatis di browser ini memakai localStorage.</p></div>`;
+  view.innerHTML = `${renderHeader("Riwayat Generate", "LocalStorage", "Semua hasil tersimpan di browser kamu. Bisa copy ulang, export ulang, hapus satu item, atau hapus semua.")}<div class="view-body"><div class="history-toolbar"><strong>${items.length} hasil tersimpan</strong><button class="btn danger" id="clearHistory" type="button">Hapus Semua</button></div>${items.length ? `<div class="history-list">${items.map(historyItem).join("")}</div>` : emptyState("Belum ada riwayat. Generate salah satu tools dulu, nanti otomatis tersimpan di sini.")}</div>`;
 }
+function historyItem(item) {
+  return `<article class="history-item"><h3>${escapeHTML(item.feature)}</h3><div class="history-meta">${escapeHTML(item.date)}</div><div class="history-preview">${escapeHTML(item.preview)}...</div><div class="result-actions"><button class="icon-btn" data-copy="${encodeURIComponent(item.content)}" type="button">Copy ulang</button><button class="icon-btn" data-export="${encodeURIComponent(item.content)}" data-filename="${slug(item.feature)}.txt" type="button">Export ulang</button><button class="icon-btn" data-delete="${item.id}" type="button">Hapus</button></div></article>`;
+}
+function deleteHistory(id) { setHistory(getHistory().filter((item) => item.id !== id)); renderHistory(); showToast("Riwayat dihapus"); }
+function clearHistory() { setHistory([]); renderHistory(); showToast("Semua riwayat dihapus"); }
 
-const mentorTips = ["Pakai bahasa audiens, bukan bahasa teknis penjual.", "Jual perubahan yang mereka rasakan, bukan cuma file yang mereka dapat.", "Mulai validasi dengan konten ringan sebelum membuat launch besar.", "Beri bonus yang mengurangi rasa bingung setelah membeli."];
-const platforms = ["Lynk ID", "Gumroad", "Karyakarsa", "Tokopedia Digital", "Instagram DM", "WhatsApp katalog", "Website landing page"];
-const formats = ["ebook ringkas", "template siap pakai", "mini course video", "workbook interaktif", "bundle swipe file", "checklist premium", "kelas rekaman", "paket Notion/Canva"];
-
-function generateProductIdeas(v) {
-  const ideas = Array.from({ length: 10 }, (_, i) => {
-    const format = choice(formats), platform = choice(platforms);
-    return card(`${i + 1}. ${choice(["Starter Kit", "Shortcut", "Blueprint", "Playbook", "Sprint", "Template Pack"])} ${v.niche} untuk ${v.audience}`, miniGrid([
-      ["Format produk", format], ["Target pembeli", `${v.audience} level ${v.level}`], ["Masalah utama", `Mereka ingin hasil dari ${v.niche}, tapi belum punya urutan langkah, contoh, dan standar eksekusi yang jelas.`], ["Solusi", `Produk ini memberi jalur praktis dari nol sampai bisa mencoba sendiri tanpa merasa sendirian.`], ["Isi produk", `Modul pembuka, contoh nyata, checklist harian, template eksekusi, dan studi kasus sederhana.`], ["Bonus", `Swipe file caption, worksheet validasi, mini audit mandiri, dan checklist launch 7 hari.`], ["Estimasi harga", choice(["Rp39.000 - Rp79.000", "Rp79.000 - Rp149.000", "Rp149.000 - Rp299.000"])], ["Tingkat kesulitan", choice(["Mudah dibuat dalam 3-5 hari", "Sedang, butuh contoh visual", "Sedang, perlu validasi kecil dulu"])], ["Platform cocok", platform], ["Angle promosi", `Bantu ${v.audience} menghindari trial-error saat memulai ${v.niche}.`], ["Potensi laku", `Masalahnya spesifik, hasilnya mudah dibayangkan, dan format ${format} terasa cepat dipakai oleh pemula.`]
-    ]));
-  }).join("");
-  return card("Arahan mentor sebelum memilih ide", `<p>Ambil 2-3 ide yang paling gampang dibuat minggu ini. Validasi dengan posting edukasi, polling, atau DM ringan. ${choice(mentorTips)}</p>`) + ideas;
-}
-function generateAffiliateContent(v) {
-  const hooks = Array.from({ length: 15 }, (_, i) => `${i + 1}. Kalau kamu ${v.buyer} dan masih ${v.problem}, coba lihat ${v.product} dari angle ini: ${choice(["lebih hemat waktu", "lebih jelas langkahnya", "lebih minim trial-error", "lebih gampang konsisten"])}.`);
-  const short = Array.from({ length: 10 }, () => `${v.product} cocok buat kamu yang pengin ${v.benefit}. Bukan magic, tapi bantu langkah awal jadi lebih kebayang.`);
-  const story = Array.from({ length: 5 }, () => `Dulu aku kira masalah ${v.problem} selesai kalau nonton banyak tips. Ternyata yang dibutuhkan adalah panduan yang rapi. ${v.product} bisa jadi shortcut buat ${v.buyer} yang mau mulai lebih terarah.`);
-  const soft = Array.from({ length: 5 }, () => `Kalau lagi cari referensi yang praktis, ${v.product} menarik buat dicek. Benefit utamanya: ${v.benefit}. Ambil kalau memang relate dengan kebutuhanmu.`);
-  const hard = Array.from({ length: 5 }, () => `Kalau ${v.problem} sudah bikin kamu stuck terlalu lama, jangan nunggu perfect. Cek ${v.product}, pelajari, lalu praktikkan hari ini juga.`);
-  return sectionList("15 Hook", hooks) + sectionList("10 Caption Pendek", short) + sectionList("5 Caption Storytelling", story) + sectionList("5 Caption Soft Selling", soft) + sectionList("5 Caption Hard Selling Natural", hard) + sectionList("10 CTA", Array.from({ length: 10 }, () => choice(["Komen ‘mau’ kalau mau aku kirim detailnya.", "DM aku kata ‘INFO’ biar aku jelasin versi singkat.", "Cek link bio kalau kamu mau lihat isi produknya.", "Simpan dulu kalau belum siap beli hari ini."]))) + sectionList("10 Ide Video Pendek", Array.from({ length: 10 }, (_, i) => `Video ${i + 1}: buka dengan masalah “${v.problem}”, tunjukkan before-after, lalu arahkan ke benefit ${v.benefit}.`)) + sectionList("10 Ide Threads Post", Array.from({ length: 10 }, (_, i) => `Thread ${i + 1}: pelajaran kecil untuk ${v.buyer} yang ingin mengatasi ${v.problem} dengan bantuan ${v.product}.`)) + sectionList("5 Komentar Lanjutan/Utas", Array.from({ length: 5 }, () => `Tambahan: jangan fokus beli produknya saja, fokus pakai ${v.product} untuk membangun kebiasaan eksekusi.`)) + sectionList("5 Angle Masalah Audiens", Array.from({ length: 5 }, () => choice([`Takut mulai karena merasa belum ahli.`, `Bingung membedakan info penting dan noise.`, `Sudah belajar banyak tapi belum punya sistem.`, `Butuh contoh yang bisa ditiru dulu sebelum improvisasi.`])));
-}
-function generateHooks(v) {
-  const cats = ["Problem aware", "Curiosity", "Result based", "Fear of missing out", "Storytelling", "Social proof", "Soft clickbait", "Beginner friendly"];
-  return cats.map((cat) => sectionList(cat, Array.from({ length: cat === "Problem aware" ? 5 : 4 }, () => choice([
-    `Kamu bukan malas, mungkin cara mulai ${v.topic} aja yang belum dibuat simpel.`,
-    `Yang jarang dibahas soal ${v.topic}: pemula sering gagal karena ${v.problem}.`,
-    `Aku baru sadar, ${v.audience} nggak butuh motivasi lagi, tapi butuh langkah kecil yang jelas.`,
-    `Kalau kamu pengin hasil dari ${v.topic}, stop mulai dari hal yang terlalu rumit.`,
-    `Ini cara mikir yang bikin ${v.audience} lebih berani mulai meski belum perfect.`
-  ])))).join("");
-}
-function generateCaptionCta(v) {
-  return card("Caption Multi Platform", miniGrid([
-    ["Threads pendek", `${v.problem} sering bikin orang nunda. ${v.product} bantu kamu mulai dari ${v.solution}. ${v.promo}.`],
-    ["Threads versi utas", `1/ Banyak yang stuck bukan karena nggak mampu, tapi karena ${v.problem}.\n2/ Solusi paling aman: mulai dengan sistem kecil.\n3/ ${v.product} dibuat untuk bantu ${v.solution}.\n4/ ${v.promo}.`],
-    ["Instagram", `Kalau selama ini ${v.problem}, kamu butuh pegangan yang praktis. ${v.product} bantu lewat ${v.solution}. Simpan postingan ini dan cek detailnya kalau sudah siap mulai.`],
-    ["TikTok", `POV: kamu capek ${v.problem}, lalu nemu ${v.product} yang bantu ${v.solution} tanpa harus bingung dari nol.`]
-  ])) + card("CTA per Kebutuhan", miniGrid([
-    ["CTA komentar", "Komen ‘mau’ kalau mau aku kirim detail dan preview isinya."],
-    ["CTA DM", "DM kata ‘START’ biar aku bantu jelasin apakah ini cocok buat kebutuhanmu."],
-    ["CTA cek bio", "Cek link di bio untuk lihat isi lengkap, bonus, dan cara aksesnya."],
-    ["CTA soft", "Simpan dulu kalau belum siap beli hari ini, yang penting kamu punya referensinya."],
-    ["CTA direct", `Kalau kamu memang butuh solusi untuk ${v.problem}, ambil ${v.product} selagi ${v.promo}.`]
-  ])) + sectionList("Variasi Gaya", [`Versi lebih santai: ${v.product} ini kayak teman jalan buat kamu yang masih ${v.problem}.`, `Versi lebih urgent: ${v.promo} dan cocok kalau kamu mau mulai minggu ini, bukan nanti-nanti.`, `Versi tanpa terkesan jualan: aku cuma share resource yang menurutku membantu buat ${v.solution}.`]);
-}
-function generateDmReplies(v) {
-  const rows = [["Orang komen mau", `Siap, aku kirim ya. Ini ${v.product}, harganya ${v.price}, sudah termasuk ${v.bonus}. Kalau mau aku jelasin singkat dulu juga boleh.`], ["Tanya harga", `Harganya ${v.price}. Di dalamnya kamu dapat ${v.bonus}. Cocok kalau kamu pengin mulai lebih rapi tanpa ngumpulin info random lagi.`], ["Bilang mahal", `Paham kok. Kalau dibanding file biasa mungkin terasa lumayan, tapi value-nya ada di arahan + contoh pakai. Kalau belum prioritas, boleh save dulu ya.`], ["Minta bukti", `Boleh. Aku kirim preview isi dan contoh hasilnya ya, biar kamu bisa nilai sendiri apakah cocok dengan kebutuhanmu.`], ["Cuma tanya-tanya", `Santai, tanya aja. Aku bantu jelasin dulu, nggak harus langsung ambil kalau memang belum cocok.`], ["Follow up 1", `Hai, aku follow up pelan-pelan ya. Kemarin kamu sempat tertarik ${v.product}. Masih mau aku bantu jelasin bagian yang paling relevan buat kamu?`], ["Follow up 2", `Aku cek lagi ya, promo/aksesnya masih bisa dipakai. Kalau belum jadi juga nggak apa-apa, cuma takut chatnya ketimbun.`], ["Closing halus", `Kalau kamu merasa ini pas buat kebutuhan sekarang, boleh langsung aku bantu proses. Kalau masih ragu, aku bisa bantu bandingin dulu dengan kebutuhanmu.`], ["Belum transfer", `Aku reminder halus ya, order ${v.product}-nya belum masuk. Kalau masih mau, silakan lanjut. Kalau batal juga kabari aja, aman kok.`], ["Setelah bayar", `Makasih ya, pembayaran sudah masuk. Ini akses produknya. Saran aku mulai dari bagian awal dulu, lalu praktikkan satu langkah kecil hari ini.`], ["After sales", `Gimana sejauh ini, sudah sempat buka materinya? Kalau ada bagian yang bingung, chat aja. Aku bantu arahkan biar nggak berhenti di download doang.`]];
-  return card("Template DM Reply Realistis", miniGrid(rows));
-}
-function generatePricing(v) {
-  const cost = Number(v.cost), price = Number(v.price), fee = Number(v.fee), target = Number(v.targetProfit), sales = Number(v.sales);
-  const netPerOrder = price - (price * fee / 100); const profit = (netPerOrder * sales) - cost; const bep = Math.ceil(cost / Math.max(netPerOrder, 1));
-  return card("Hasil Pricing Calculator", miniGrid([
-    ["Omzet", money(price * sales)], ["Profit bersih", money(profit)], ["Profit per order", money(netPerOrder)], ["Break even point", `${bep} order`], ["Target harian", `${Math.ceil(sales / 30)} order/hari untuk 30 hari`], ["Target mingguan", `${Math.ceil(sales / 4)} order/minggu`], ["Saran harga bawah", money(Math.max(netPerOrder * 0.75, cost / Math.max(sales, 1)))], ["Saran harga ideal", money(Math.max(price, target / Math.max(sales, 1) + (price * fee / 100)))], ["Saran harga premium", money(price * 1.8)], ["Strategi diskon", `Buat anchor harga normal lebih tinggi, lalu promo terbatas dengan bonus. Jangan diskon terus-menerus agar value tidak turun.`], ["Catatan mentor", `Jangan terlalu murah kalau produkmu menghemat waktu, memberi contoh, dan mengurangi kebingungan pembeli. Harga rendah boleh untuk validasi, bukan identitas selamanya.`]
-  ]));
-}
-function generateCalendar(v) {
-  const goals = ["edukasi", "trust", "promosi", "storytelling", "engagement"];
-  return card("Kalender Konten 30 Hari", `<ol>${Array.from({ length: 30 }, (_, i) => `<li><strong>Hari ke-${i + 1}</strong><br>Tema: ${choice(["kesalahan pemula", "before-after", "tips praktis", "cerita proses", "bongkar mitos", "soft promo"])} seputar ${escapeHtml(v.niche)}.<br>Hook: ${escapeHtml(choice([`Masih bingung mulai ${v.niche}?`, `Ini alasan ${v.product} bisa bantu pemula.`, `Stop lakukan ini kalau mau hasil lebih rapi.`]))}<br>Caption: Bahas satu masalah kecil, beri contoh, lalu arahkan ke langkah praktis yang bisa dilakukan hari itu.<br>Format: ${escapeHtml(choice(["single post", "carousel", "video pendek", "thread", "story Q&A"]))}. CTA: ${escapeHtml(choice(["Simpan dulu", "Komen mau", "DM INFO", "Cek bio", "Share ke teman"] ))}. Tujuan: ${escapeHtml(goals[i % goals.length])}. Platform: ${escapeHtml(v.platform)}.</li>`).join("")}</ol>`);
-}
-function generateOffer(v) {
-  return card("Offer Page Siap Pakai", miniGrid([
-    ["Headline", `Punya ${v.product} yang membantu ${v.audience} mulai lebih cepat tanpa kebingungan dari nol.`], ["Subheadline", `Di dalamnya ada panduan, contoh, dan bonus yang membuat proses belajar terasa lebih ringan.`], ["Pain point", `${v.audience} sering stuck karena terlalu banyak info, tidak tahu urutan, dan takut salah mulai.`], ["Solusi", `${v.product} menyederhanakan proses menjadi langkah yang bisa langsung dipraktikkan.`], ["Benefit utama", `Lebih hemat waktu, lebih percaya diri, punya contoh, dan tahu apa yang harus dilakukan setelah membeli.`], ["Apa saja didapat", `Materi utama ${v.product}, template pendukung, checklist eksekusi, dan contoh penerapan.`], ["Bonus stack", v.bonus], ["Value breakdown", `Produk utama ${v.normal}, bonus ${v.bonus}, value total terasa lebih tinggi dari harga promo.`], ["Harga", `Normal ${v.normal} → promo ${v.promo}`], ["Urgency", `Promo bisa ditutup kapan saja agar pembeli tidak menunda terlalu lama.`], ["Risk reversal", `Kalau isi produk tidak sesuai deskripsi, pembeli bisa menghubungi penjual untuk solusi yang fair.`], ["CTA", `Ambil ${v.product} sekarang dan mulai praktik dari langkah pertama hari ini.`]
-  ])) + sectionList("Copywriting Pendek", [`Kalau kamu ${v.audience} dan ingin mulai lebih rapi, ${v.product} bisa jadi shortcut. Normal ${v.normal}, hari ini ${v.promo} plus bonus ${v.bonus}.`]) + sectionList("Copywriting Panjang", [`Bayangkan kamu tidak perlu lagi mengumpulkan tips random. ${v.product} memberi arahan dari masalah awal sampai eksekusi. Cocok untuk ${v.audience} yang butuh pegangan praktis. Dengan bonus ${v.bonus}, kamu bukan cuma membeli materi, tapi membeli sistem sederhana untuk bergerak lebih cepat.`]);
-}
-function generateLicense(v) {
-  const rights = { "Personal Use": "Pembeli boleh memakai produk untuk kebutuhan pribadi atau internal bisnis sendiri.", "Resell Rights": "Pembeli boleh menjual ulang produk akhir sesuai ketentuan tanpa mengubah klaim lisensi.", "Master Resell Rights": "Pembeli boleh menjual ulang produk dan menawarkan hak jual ulang kepada pembeli berikutnya.", "Tidak boleh dijual ulang": "Pembeli hanya boleh menggunakan produk, bukan menjual, membagikan, atau mengklaim ulang." };
-  return card(`${v.license} - ${v.product}`, miniGrid([
-    ["Versi singkat", `${v.product} menggunakan lisensi ${v.license}. ${rights[v.license]}`], ["Versi lengkap", `Dengan membeli ${v.product}, pembeli memahami bahwa hak penggunaan mengikuti tipe lisensi ${v.license}. Produk harus digunakan secara etis dan tidak boleh melanggar hak cipta pihak lain.`], ["Hak pembeli", rights[v.license]], ["Larangan", `Dilarang membagikan file secara gratis di grup publik, mengklaim sebagai karya original jika tidak diizinkan, atau memakai produk untuk aktivitas ilegal.`], ["Catatan penggunaan", `Simpan bukti pembelian dan baca instruksi pemakaian sebelum menjual atau mengedit produk.`], ["Disclaimer", `Teks ini bersifat template sederhana. Untuk kebutuhan legal yang kompleks, konsultasikan dengan profesional hukum.`]
-  ]));
-}
-function generateDescription(v) {
-  return card("Deskripsi Produk Siap Tempel", miniGrid([
-    ["Judul produk", `${v.product} untuk ${v.buyer}`], ["Deskripsi pendek", `${v.product} membantu ${v.buyer} mengatasi ${v.problem} dengan isi praktis: ${v.content}.`], ["Deskripsi panjang", `Kalau kamu ${v.buyer} dan sering merasa ${v.problem}, produk ini dibuat sebagai panduan yang lebih rapi. Kamu tidak hanya mendapat file, tapi juga arah eksekusi supaya tahu mulai dari mana dan apa yang harus dilakukan setelahnya.`], ["Bullet benefit", `Lebih jelas langkahnya; punya contoh; hemat waktu riset; cocok untuk pemula; bisa langsung dipraktikkan.`], ["Isi paket", v.content], ["Cocok untuk siapa", `${v.buyer} yang mau belajar praktis tanpa kebanyakan teori.`], ["CTA beli", `Ambil sekarang seharga ${v.price} dan mulai dari langkah pertama hari ini.`], ["Versi Lynk ID", `${v.product}\nUntuk: ${v.buyer}\nIsi: ${v.content}\nBonus: ${v.bonus}\nHarga: ${v.price}\nKlik beli kalau kamu siap mulai lebih rapi.`], ["Versi Gumroad/Website", `${v.product} adalah resource praktis untuk ${v.buyer}. Di dalamnya kamu mendapat ${v.content}, bonus ${v.bonus}, dan arahan agar masalah ${v.problem} tidak terus menghambat eksekusi.`]
-  ]));
-}
-function generateThreads(v) {
-  return sectionList("5 Post Utama", Array.from({ length: 5 }, () => `Kalau kamu ${v.audience} dan masih ${v.problem}, topik ${v.topic} ini penting. Mulai dari langkah kecil, bukan dari target besar. ${v.product} bisa jadi pegangan kalau kamu butuh contoh yang lebih jelas.`)) + sectionList("5 Komentar Lanjutan", Array.from({ length: 5 }, () => `Tambahan: jangan tunggu percaya diri dulu. Biasanya percaya diri muncul setelah kamu punya struktur dan mulai posting beberapa kali.`)) + sectionList("5 CTA Komentar", ["Komen ‘mau’ kalau mau aku kirim detailnya.", "Mau aku bikinin versi checklist?", "DM aku kalau mau lihat isi produknya.", "Save dulu, besok praktikkan satu poin.", "Cek bio kalau mau mulai dari panduan lengkap."]) + sectionList("5 Hook Clickbait Aman", Array.from({ length: 5 }, () => choice([`Aku nyesel baru paham ini soal ${v.topic}.`, `Pemula sering salah mulai dari sini.`, `Ini bukan rahasia, tapi jarang dipraktikkan.`, `Kalau followers kecil, justru mulai dari cara ini.`, `Stop promosi sebelum kamu beresin 1 hal ini.`])));
-}
-
-document.addEventListener("DOMContentLoaded", init);
+setupChrome();
+route();

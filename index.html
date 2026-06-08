@@ -3,121 +3,66 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Digital Seller Super Tools adalah dashboard static untuk membuat ide produk digital, konten affiliate, hook, caption, CTA, DM reply, pricing, kalender konten, offer, lisensi, deskripsi produk, dan Threads post." />
-  <title>Digital Seller Super Tools</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <meta name="description" content="Affiliate Promo Assistant membantu affiliator pemula membuat angle, hook, caption, CTA, script video, review, balasan DM, dan target komisi tanpa API." />
+  <title>Affiliate Promo Assistant</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div class="app-shell">
     <aside class="sidebar" aria-label="Navigasi desktop">
-      <a class="brand" href="#dashboard" data-tool-link="dashboard">
-        <span class="brand-mark">DS</span>
-        <span><strong>Digital Seller</strong><small>Super Tools</small></span>
+      <a class="brand" href="#dashboard" data-route="dashboard" aria-label="Affiliate Promo Assistant Home">
+        <span class="brand-mark">A</span>
+        <span>
+          <strong>Affiliate Promo</strong>
+          <small>Assistant</small>
+        </span>
       </a>
       <nav class="side-nav" id="sideNav"></nav>
-      <div class="side-card">
-        <span class="pill">100% Static</span>
-        <h3>Siap deploy cepat</h3>
-        <p>Tanpa backend, tanpa database server, dan tanpa API berbayar.</p>
+      <div class="side-note">
+        <span>✨</span>
+        <p>100% static, tanpa API. Semua hasil dibuat langsung di browser kamu.</p>
       </div>
     </aside>
 
     <main class="main-content">
-      <header class="topbar">
-        <div>
-          <p class="eyebrow">Dashboard mentor jualan digital</p>
-          <h1>Digital Seller Super Tools</h1>
-        </div>
-        <div class="top-actions">
-          <button class="ghost-btn" id="scrollHistoryBtn">Riwayat</button>
-          <button class="primary-btn" data-tool-link="product-idea">Mulai Generate</button>
-        </div>
-      </header>
-
-      <section class="hero" id="dashboard">
+      <section class="hero" id="heroSection">
         <div class="hero-copy">
-          <div class="badge-row">
-            <span>No API</span><span>Bisa dari HP</span><span>Pemula Friendly</span><span>Siap Jual</span><span>100% Static</span>
-          </div>
-          <h2>Bikin ide produk, konten promosi, offer, DM reply, dan kalender jualan dari satu dashboard.</h2>
-          <p>Dirancang untuk pemula produk digital dan affiliate di Indonesia yang butuh output natural, detail, dan langsung bisa dipakai untuk Threads, TikTok, Instagram, Lynk ID, Gumroad, atau website pribadi.</p>
+          <div class="hero-badges" id="heroBadges"></div>
+          <h1>Udah punya link affiliate, tapi bingung promosiinnya gimana?</h1>
+          <p>Masukkan produk, masalah pembeli, dan benefit-nya. Tools ini bantu bikin angle, hook, caption, CTA, script video, review, sampai balasan DM yang siap dipakai buat konten affiliate.</p>
           <div class="hero-actions">
-            <button class="primary-btn" data-tool-link="affiliate-content">Generate Konten Affiliate</button>
-            <button class="secondary-btn" data-tool-link="content-calendar">Buat Kalender 30 Hari</button>
+            <a class="btn primary" href="#angle" data-route="angle">Mulai Bikin Konten</a>
+            <a class="btn secondary" href="#dashboard" data-route="dashboard">Lihat Tools</a>
           </div>
         </div>
-        <div class="hero-panel">
-          <div class="metric-card"><strong>10+</strong><span>tools jualan</span></div>
-          <div class="metric-card"><strong>30</strong><span>hook & kalender</span></div>
-          <div class="metric-card"><strong>∞</strong><span>variasi random</span></div>
-          <div class="mini-result">
-            <span class="pill green">Preview hasil</span>
-            <h3>Angle promosi siap pakai</h3>
-            <p>“Bukan jualan ebook, tapi shortcut biar pemula punya arah jelas dari ide sampai posting pertama.”</p>
+        <div class="hero-card" aria-label="Preview hasil tools">
+          <div class="hero-card-top">
+            <span class="pulse"></span>
+            <span>Preview Output</span>
+          </div>
+          <div class="preview-stack">
+            <div class="mini-result">
+              <strong>Hook</strong>
+              <p>“Kalau kamu sering stuck bikin konten affiliate, coba mulai dari masalah kecil yang audiens kamu rasain dulu.”</p>
+            </div>
+            <div class="mini-result accent">
+              <strong>CTA</strong>
+              <p>“Kalau mau aku kirimin linknya, komen ‘mau’ ya. Nanti aku bantu arahin pilih varian yang pas.”</p>
+            </div>
           </div>
         </div>
       </section>
 
-      <section class="section" aria-labelledby="summary-title">
-        <div class="section-heading">
-          <p class="eyebrow">Dashboard Utama</p>
-          <h2 id="summary-title">Ringkasan fungsi tools</h2>
-          <p>Pilih kebutuhan kamu: mulai dari cari ide produk, bikin konten, menyusun harga, sampai membuat halaman penawaran.</p>
-        </div>
-        <div class="quick-grid" id="quickGrid"></div>
-      </section>
-
-      <section class="section how-to" id="cara-pakai">
-        <div class="section-heading">
-          <p class="eyebrow">Cara Pakai</p>
-          <h2>3 langkah simpel untuk mulai jualan lebih rapi</h2>
-        </div>
-        <div class="steps-grid">
-          <article><span>01</span><h3>Pilih tool</h3><p>Mulai dari ide produk, konten affiliate, pricing, offer, atau kalender konten sesuai kebutuhan hari ini.</p></article>
-          <article><span>02</span><h3>Isi konteks</h3><p>Masukkan niche, produk, audiens, masalah, harga, atau benefit. Semakin spesifik, hasil makin terasa personal.</p></article>
-          <article><span>03</span><h3>Copy atau export</h3><p>Salin hasil untuk posting, DM, landing page, atau export TXT agar mudah disimpan dan dibagikan.</p></article>
-        </div>
-      </section>
-
-      <section class="section" id="tools-unggulan">
-        <div class="section-heading">
-          <p class="eyebrow">Tools Unggulan</p>
-          <h2>Generator lengkap untuk digital seller pemula</h2>
-        </div>
-        <div class="tools-layout">
-          <div class="tool-tabs" id="toolTabs"></div>
-          <section class="tool-workspace" id="toolWorkspace" aria-live="polite"></section>
-        </div>
-      </section>
-
-      <section class="section audience" id="cocok-untuk">
-        <div class="section-heading">
-          <p class="eyebrow">Cocok Untuk Siapa</p>
-          <h2>Dibuat untuk kreator dan seller yang mau mulai tanpa ribet</h2>
-        </div>
-        <div class="audience-grid">
-          <article><span>🧑‍💻</span><h3>Pemula produk digital</h3><p>Yang punya skill kecil tapi belum tahu dikemas jadi produk apa.</p></article>
-          <article><span>🤝</span><h3>Affiliate marketer</h3><p>Yang butuh hook, caption, CTA, dan ide video agar promosi tidak monoton.</p></article>
-          <article><span>📱</span><h3>Creator Threads/TikTok</h3><p>Yang ingin konten harian lebih konsisten, casual, dan tetap mengarah ke penjualan.</p></article>
-          <article><span>🛍️</span><h3>Seller Lynk ID/Gumroad</h3><p>Yang perlu deskripsi produk, lisensi, dan offer stack siap tempel.</p></article>
-        </div>
-      </section>
-
-      <section class="section history-section" id="history">
-        <div class="section-heading row-heading">
-          <div><p class="eyebrow">Riwayat</p><h2>Generate terakhir</h2></div>
-          <button class="danger-btn" id="clearHistoryBtn">Hapus Semua</button>
-        </div>
-        <div id="historyList" class="history-list"></div>
-      </section>
+      <section class="content-card" id="viewContainer" aria-live="polite"></section>
     </main>
   </div>
 
   <nav class="bottom-nav" id="bottomNav" aria-label="Navigasi mobile"></nav>
-  <div class="toast" id="toast" role="status" aria-live="polite">Berhasil disalin</div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
   <script src="script.js"></script>
 </body>
 </html>

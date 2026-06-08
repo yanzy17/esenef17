@@ -1,90 +1,130 @@
-# Digital Seller Super Tools
+# Affiliate Promo Assistant
 
-**Digital Seller Super Tools** adalah web app 100% static untuk membantu pemula produk digital dan affiliate di Indonesia membuat bahan jualan dari satu dashboard: ide produk, konten promosi, hook, caption, CTA, DM reply, pricing, kalender konten, offer, lisensi, deskripsi produk, dan Threads post.
+Affiliate Promo Assistant adalah web app static untuk membantu affiliator pemula mengubah produk atau link affiliate menjadi bahan promosi yang lebih menarik, natural, dan siap diposting.
 
-Project ini dibuat dengan **HTML, CSS, dan JavaScript vanilla** saja. Tidak ada backend, tidak ada database server, dan tidak menggunakan API berbayar, sehingga bisa langsung di-deploy ke GitHub Pages, Netlify, atau hosting static lain.
+Project ini dibuat dengan **HTML, CSS, dan JavaScript vanilla**. Tidak ada backend, tidak ada API, tidak ada database server, dan tidak memakai framework berat. Aplikasi bisa langsung dibuka dari browser serta siap deploy ke GitHub Pages atau Netlify.
 
-## Kenapa project ini berguna?
+## Target User
 
-Banyak pemula sudah punya skill atau produk affiliate, tetapi stuck di bagian eksekusi: bingung bikin ide produk, takut promosi terlihat kaku, tidak tahu menyusun harga, atau belum punya copywriting penawaran. Tools ini membantu membuat draft yang lebih natural, detail, dan siap dipakai untuk jualan harian.
+Tools ini dibuat untuk:
+
+- Affiliator pemula yang sudah punya produk atau link affiliate.
+- Kreator kecil yang ingin membuat konten promosi lebih konsisten.
+- Seller atau affiliator yang bingung memilih angle jualan.
+- Orang yang caption, hook, CTA, dan script videonya sering terasa kaku.
+- Pengguna yang butuh output praktis, bukan teori panjang tentang affiliate marketing.
+
+## Masalah yang Diselesaikan
+
+Affiliate Promo Assistant membantu saat user:
+
+- Bingung memulai promosi dari produk yang sudah dimiliki.
+- Sulit membuat angle promosi yang tidak terlihat maksa.
+- Caption promosi terasa kaku, terlalu hard selling, atau kurang relate.
+- Hook konten kurang kuat untuk menghentikan scroll.
+- CTA tidak jelas atau terlalu agresif.
+- Stuck membuat script video pendek untuk TikTok, Reels, Shorts, dan Threads.
+- Bingung membalas komentar atau DM seperti “linknya mana?”, “harga berapa?”, “worth it ga?”, dan “mahal”.
+- Butuh ide konten harian agar promosi affiliate lebih konsisten.
+- Ingin menghitung target komisi dan jumlah order yang realistis.
 
 ## Fitur Lengkap
 
-- **Dashboard utama** dengan quick action ke semua tool.
-- **Product Idea Generator** untuk membuat minimal 10 ide produk digital lengkap dengan format, target pembeli, masalah, solusi, bonus, harga, platform, angle promosi, dan potensi laku.
-- **Affiliate Content Generator** untuk membuat hook, caption pendek, caption storytelling, soft selling, hard selling natural, CTA, ide video pendek, ide Threads, komentar lanjutan, dan angle masalah audiens.
-- **Hook Generator** dengan kategori problem aware, curiosity, result based, FOMO, storytelling, social proof, soft clickbait, dan beginner friendly.
-- **Caption + CTA Generator** untuk Threads, Instagram, TikTok, CTA komentar, CTA DM, cek bio, versi santai, urgent, dan tanpa terasa jualan.
-- **DM Reply Assistant** untuk komentar “mau”, tanya harga, objection mahal, minta bukti, follow up, closing, reminder transfer, setelah bayar, dan after sales.
-- **Pricing Calculator** untuk menghitung omzet, profit bersih, profit per order, break even point, target harian, target mingguan, saran harga, strategi diskon, dan catatan pricing.
-- **Content Calendar Generator** untuk membuat kalender konten 30 hari lengkap dengan tema, hook, caption singkat, format, CTA, tujuan konten, dan platform.
-- **Offer Builder** untuk menyusun headline, subheadline, pain point, solusi, benefit, offer stack, bonus, value breakdown, urgency, garansi sederhana, dan CTA.
-- **License Text Generator** dengan pilihan Personal Use, Resell Rights, Master Resell Rights, dan Tidak boleh dijual ulang.
-- **Product Description Generator** untuk membuat deskripsi pendek, deskripsi panjang, bullet benefit, isi paket, CTA beli, versi Lynk ID, dan versi Gumroad/website.
-- **Threads Post Generator** untuk membuat post utama, komentar lanjutan, CTA komentar, dan hook clickbait aman.
-- **Riwayat generate** memakai localStorage di browser.
-- **Copy hasil** ke clipboard dengan toast notification.
-- **Export hasil** ke file `.txt` dengan format rapi.
-- **Responsive UI** dengan sidebar desktop dan bottom navigation mobile.
+1. **Dashboard**
+   - Ringkasan manfaat tools.
+   - Quick access ke semua fitur.
+   - Cara pakai 3 langkah.
+   - Badge: No API, Bisa dari HP, Affiliate Friendly, Siap Posting, 100% Static.
+   - Section “Cocok untuk siapa?”.
+
+2. **Product Angle Finder**
+   - Generate 10 angle promosi produk.
+   - Menampilkan pain point pembeli, alasan produk menarik, cara positioning, ide konten, CTA, dan catatan angle termudah untuk pemula.
+
+3. **Affiliate Hook Generator**
+   - Generate 30 hook affiliate.
+   - Kategori hook: problem aware, curiosity, before-after, review style, soft selling, social proof, beginner friendly, dan clickbait halus.
+
+4. **Caption Affiliate Generator**
+   - Generate caption pendek, panjang, soft selling, review jujur, storytelling, Threads, dan TikTok/IG.
+   - Tone tersedia: santai, Gen Z, edukatif, soft selling, dan review jujur.
+
+5. **CTA Affiliate Generator**
+   - Generate 20 CTA siap pakai.
+   - Variasi CTA: halus, direct, Gen Z, urgent tapi tidak maksa, komentar Threads, cek bio, checkout, dan follow up.
+
+6. **Script Video Affiliate**
+   - Generate 5 script video pendek.
+   - Output mencakup opening 3 detik pertama, alur scene, teks overlay, voice over, CTA akhir, ide visual/B-roll, dan caption pendukung.
+
+7. **Ide Konten Affiliate 30 Hari**
+   - Kalender konten hari ke-1 sampai 30.
+   - Setiap hari berisi tema, hook, format, caption singkat, CTA, tujuan konten, dan platform.
+
+8. **Komentar & DM Reply Assistant**
+   - Template balasan untuk komentar “mau”, pertanyaan harga, pertanyaan link, keberatan mahal, rekomendasi, keraguan produk, cara beli, follow up, closing komentar, closing DM, dan after sales.
+
+9. **Komisi & Target Calculator**
+   - Menghitung komisi per order.
+   - Menghitung target order harian, mingguan, dan bulanan.
+   - Menghitung estimasi penghasilan harian, mingguan, dan bulanan.
+   - Memberikan catatan strategi serta saran produk low ticket, mid ticket, dan high ticket.
+
+10. **Product Review Builder**
+    - Generate review pendek dan panjang.
+    - Menampilkan poin plus, poin minus, siapa yang cocok beli, siapa yang kurang cocok, kesimpulan review, CTA soft selling, versi Threads, dan versi TikTok/IG caption.
+
+11. **Riwayat**
+    - Menyimpan hasil generate ke localStorage.
+    - Menampilkan nama fitur, tanggal, dan preview hasil.
+    - Bisa copy ulang, export ulang ke `.txt`, hapus satu item, atau hapus semua.
+
+## Fitur Global
+
+- 100% static dan berjalan langsung di browser.
+- Mobile-first dengan bottom navigation untuk HP.
+- Sidebar dashboard untuk desktop.
+- Output tampil dalam card rapi.
+- Tombol copy di setiap hasil.
+- Tombol export `.txt` di setiap hasil.
+- Toast notification untuk copy, export, generate, dan hapus riwayat.
+- Empty state saat belum ada hasil.
+- Loading state singkat saat generate.
+- Validasi input kosong dengan pesan yang jelas.
+- Semua output dibuat dinamis dari template JavaScript.
 
 ## Cara Pakai
 
-1. Buka `index.html` di browser atau akses URL deployment.
-2. Pilih tool yang ingin digunakan dari sidebar, bottom navigation, atau card quick action.
-3. Isi semua input yang diminta agar hasil generate lebih spesifik.
-4. Klik **Generate Sekarang**.
-5. Gunakan tombol **Copy Hasil** atau **Export .txt**.
-6. Cek bagian **Riwayat** untuk melihat hasil generate sebelumnya.
-
-## Struktur File
-
-```text
-.
-├── index.html   # Struktur halaman dan konten utama app
-├── style.css    # Styling dashboard SaaS modern dan responsive layout
-├── script.js    # Logic generator, validasi form, copy, export, dan localStorage
-└── README.md    # Dokumentasi project
-```
+1. Buka `index.html` di browser.
+2. Pilih tools yang dibutuhkan dari dashboard, sidebar, atau bottom navigation.
+3. Isi input seperti nama produk, target pembeli, masalah pembeli, benefit, harga, atau link affiliate.
+4. Klik tombol **Generate Hasil Siap Pakai**.
+5. Copy hasil atau export ke file `.txt`.
+6. Gunakan output untuk konten TikTok, Reels, Shorts, Threads, caption, komentar, atau DM.
 
 ## Deploy ke GitHub Pages
 
-1. Push repository ini ke GitHub.
-2. Buka halaman repository di GitHub.
-3. Masuk ke **Settings** → **Pages**.
-4. Pada bagian **Build and deployment**, pilih **Deploy from a branch**.
-5. Pilih branch `main` dan folder `/root`.
-6. Klik **Save**.
-7. Tunggu beberapa saat sampai GitHub Pages memberikan URL website.
-
-Karena project ini static, tidak diperlukan build command.
+1. Push project ke repository GitHub.
+2. Buka menu **Settings** repository.
+3. Pilih **Pages**.
+4. Pada bagian **Build and deployment**, pilih source dari branch utama, misalnya `main`.
+5. Pilih folder root `/` karena file `index.html` berada di root repository.
+6. Simpan konfigurasi dan tunggu GitHub Pages membuat URL publik.
 
 ## Deploy ke Netlify
 
-### Opsi 1: Drag & Drop
-
 1. Login ke Netlify.
-2. Buka menu **Sites**.
-3. Drag folder project ini ke area deploy Netlify.
-4. Netlify akan langsung membuat website static.
-
-### Opsi 2: Connect Repository
-
-1. Login ke Netlify.
-2. Klik **Add new site** → **Import an existing project**.
-3. Pilih repository GitHub project ini.
-4. Kosongkan build command.
-5. Isi publish directory dengan root project, atau biarkan default jika Netlify mendeteksi file static.
+2. Pilih **Add new site** lalu **Import an existing project**.
+3. Hubungkan repository GitHub yang berisi project ini.
+4. Untuk build command, kosongkan saja karena project ini static vanilla.
+5. Untuk publish directory, isi dengan root project atau `.`.
 6. Klik **Deploy**.
 
 ## Catatan Teknis
 
-- Project ini **100% static**.
-- Tidak memakai backend.
-- Tidak memakai database server.
-- Tidak memakai API berbayar.
-- Semua hasil generator dibuat di browser memakai JavaScript vanilla.
-- Riwayat tersimpan di localStorage pengguna, sehingga data tetap berada di browser masing-masing.
-
-## Lisensi Penggunaan Project
-
-Silakan gunakan, modifikasi, dan deploy project ini sesuai kebutuhan. Jika ingin menjadikan tools ini sebagai produk komersial, pastikan copy, brand, dan template output disesuaikan dengan kebutuhan audiens kamu.
+- Tools ini **100% static**.
+- Tidak menggunakan backend.
+- Tidak menggunakan API.
+- Tidak menggunakan database server.
+- Riwayat hanya disimpan di `localStorage` browser user.
+- Cocok untuk deployment statis seperti GitHub Pages, Netlify, Vercel static hosting, atau hosting file biasa.
