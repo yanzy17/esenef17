@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="description" content="Buku Keuangan Digital adalah PWA pencatat pemasukan dan penjualan manual dengan rekap otomatis per bulan." />
+  <meta name="theme-color" content="#059669" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Buku Keuangan" />
+  <title>Buku Keuangan Digital - Digital Seller Super Tools</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="icon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="icon.svg" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body data-page="finance">
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="Navigasi desktop">
+      <a class="brand" href="index.html" aria-label="Digital Seller Super Tools Home">
+        <span class="brand-mark">BK</span>
+        <span>
+          <strong>Buku Keuangan</strong>
+          <small>Digital</small>
+        </span>
+      </a>
+      <nav class="side-nav" id="sideNav"></nav>
+      <div class="side-panel">
+        <span class="side-panel-icon">💾</span>
+        <p>Data tersimpan otomatis di browser lewat localStorage. <a href="tools-affiliate.html">Tools Affiliate</a> tetap tersedia.</p>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Buku Keuangan Digital</p>
+          <h1 id="pageTitle">Dashboard</h1>
+        </div>
+        <div class="top-actions">
+          <select id="monthSelect" class="month-select" aria-label="Pilih bulan aktif"></select>
+          <button class="icon-btn" id="themeToggle" type="button" aria-label="Toggle dark mode">🌙</button>
+        </div>
+      </header>
+
+      <section class="hero-card">
+        <div class="hero-copy">
+          <span class="pill">Manual input · Rekap otomatis · Offline ready</span>
+          <h2>Catat pemasukan dari Lynk ID, WhatsApp, QRIS, marketplace, jasa, affiliate, langganan premium AI, dan sumber lainnya.</h2>
+          <p>Pilih bulan, input transaksi, lalu omzet, modal, keuntungan, produk terlaris, target, dan laporan langsung dihitung otomatis.</p>
+        </div>
+        <div class="hero-actions">
+          <button class="btn primary" type="button" data-route="tambah">+ Tambah Transaksi</button>
+          <button class="btn ghost" type="button" id="copySummaryBtn">Copy Ringkasan</button>
+          <a class="btn ghost" href="index.html">Home</a>
+        </div>
+      </section>
+
+      <section id="viewContainer" class="view-container" aria-live="polite"></section>
+    </main>
+  </div>
+
+  <nav class="bottom-nav" id="bottomNav" aria-label="Navigasi mobile"></nav>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <input type="file" id="importFile" accept="application/json" hidden />
+  <script src="script.js"></script>
+</body>
+</html>

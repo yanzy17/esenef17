@@ -1,0 +1,20 @@
+{
+  "name": "Digital Seller Super Tools",
+  "short_name": "Seller Tools",
+  "description": "Kumpulan tools premium untuk digital seller dan affiliate, termasuk Tools Affiliate dan Buku Keuangan Digital.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "fullscreen",
+  "orientation": "portrait",
+  "background_color": "#f5fbf7",
+  "theme_color": "#059669",
+  "categories": ["finance", "productivity", "business"],
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

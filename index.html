@@ -2,67 +2,66 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Affiliate Promo Assistant membantu affiliator pemula membuat angle, hook, caption, CTA, script video, review, balasan DM, dan target komisi tanpa API." />
-  <title>Affiliate Promo Assistant</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="description" content="Digital Seller Super Tools adalah kumpulan tools premium untuk seller digital dan affiliate: tools jualan, affiliate, dan buku keuangan digital." />
+  <meta name="theme-color" content="#059669" />
+  <title>Digital Seller Super Tools</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="icon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="icon.svg" />
   <link rel="stylesheet" href="style.css" />
 </head>
-<body>
-  <div class="app-shell">
-    <aside class="sidebar" aria-label="Navigasi desktop">
-      <a class="brand" href="#dashboard" data-route="dashboard" aria-label="Affiliate Promo Assistant Home">
-        <span class="brand-mark">A</span>
-        <span>
-          <strong>Affiliate Promo</strong>
-          <small>Assistant</small>
-        </span>
-      </a>
-      <nav class="side-nav" id="sideNav"></nav>
-      <div class="side-note">
-        <span>✨</span>
-        <p>100% static, tanpa API. Semua hasil dibuat langsung di browser kamu.</p>
+<body data-page="landing" class="landing-body">
+  <main class="main-content">
+    <section class="landing-hero">
+      <nav class="landing-nav" aria-label="Navigasi utama">
+        <a class="landing-brand" href="index.html" aria-label="Digital Seller Super Tools">
+          <span class="brand-mark">DS</span>
+          <span>Digital Seller<br><small>Super Tools</small></span>
+        </a>
+        <div class="landing-nav-actions">
+          <a class="btn ghost small" href="tools-affiliate.html">Tools Affiliate</a>
+          <a class="btn primary small" href="buku-keuangan.html">Buku Keuangan</a>
+        </div>
+      </nav>
+
+      <div class="landing-panel">
+        <span class="pill">Premium static tools · No backend · Mobile first · PWA ready</span>
+        <h1>Super tools untuk seller digital, affiliate, dan kreator jualan online.</h1>
+        <p>Kelola proses jualan dari ide konten sampai catatan pemasukan dalam satu website ringan. Tools Affiliate lama tetap tersedia, ditambah Buku Keuangan Digital untuk mencatat penjualan manual dan rekap otomatis per bulan.</p>
+        <div class="landing-actions">
+          <a class="btn primary" href="tools-affiliate.html">Masuk ke Tools Affiliate</a>
+          <a class="btn ghost" href="buku-keuangan.html">Buka Buku Keuangan Digital</a>
+        </div>
       </div>
-    </aside>
 
-    <main class="main-content">
-      <section class="hero" id="heroSection">
-        <div class="hero-copy">
-          <div class="hero-badges" id="heroBadges"></div>
-          <h1>Udah punya link affiliate, tapi bingung promosiinnya gimana?</h1>
-          <p>Masukkan produk, masalah pembeli, dan benefit-nya. Tools ini bantu bikin angle, hook, caption, CTA, script video, review, sampai balasan DM yang siap dipakai buat konten affiliate.</p>
-          <div class="hero-actions">
-            <a class="btn primary" href="#angle" data-route="angle">Mulai Bikin Konten</a>
-            <a class="btn secondary" href="#dashboard" data-route="dashboard">Lihat Tools</a>
-          </div>
-        </div>
-        <div class="hero-card" aria-label="Preview hasil tools">
-          <div class="hero-card-top">
-            <span class="pulse"></span>
-            <span>Preview Output</span>
-          </div>
-          <div class="preview-stack">
-            <div class="mini-result">
-              <strong>Hook</strong>
-              <p>“Kalau kamu sering stuck bikin konten affiliate, coba mulai dari masalah kecil yang audiens kamu rasain dulu.”</p>
-            </div>
-            <div class="mini-result accent">
-              <strong>CTA</strong>
-              <p>“Kalau mau aku kirimin linknya, komen ‘mau’ ya. Nanti aku bantu arahin pilih varian yang pas.”</p>
-            </div>
-          </div>
-        </div>
-      </section>
+      <div class="tool-picker" aria-label="Pilihan tools">
+        <article class="tool-card-premium">
+          <div class="tool-icon">🚀</div>
+          <h2>Tools Affiliate / Tools Jualan</h2>
+          <p>Tools lama tetap dipertahankan untuk bantu bikin angle, hook, caption, CTA, script video, ide konten, reply DM, review, kalkulator komisi, dan riwayat hasil.</p>
+          <ul>
+            <li>Hook, caption, CTA, dan script siap pakai</li>
+            <li>Ide konten 30 hari dan balasan DM</li>
+            <li>Riwayat output, copy, dan export teks</li>
+          </ul>
+          <a class="btn secondary" href="tools-affiliate.html">Buka Tools Affiliate</a>
+        </article>
 
-      <section class="content-card" id="viewContainer" aria-live="polite"></section>
-    </main>
-  </div>
-
-  <nav class="bottom-nav" id="bottomNav" aria-label="Navigasi mobile"></nav>
-  <div class="toast" id="toast" role="status" aria-live="polite"></div>
-
+        <article class="tool-card-premium">
+          <div class="tool-icon">📗</div>
+          <h2>Buku Keuangan Digital</h2>
+          <p>Catat pemasukan manual dari Lynk ID, WhatsApp, QRIS, transfer, marketplace, jasa, affiliate, produk digital, dan langganan premium AI. Rekap omzet, modal, keuntungan, target, dan laporan per bulan otomatis.</p>
+          <ul>
+            <li>Transaksi manual, edit, hapus, duplikat</li>
+            <li>Dashboard bulan aktif, target, produk cepat</li>
+            <li>Export/import JSON, CSV, dan copy ringkasan</li>
+          </ul>
+          <a class="btn primary" href="buku-keuangan.html">Buka Buku Keuangan</a>
+        </article>
+      </div>
+    </section>
+  </main>
   <script src="script.js"></script>
 </body>
 </html>

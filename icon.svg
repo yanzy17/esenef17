@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Digital Seller Super Tools">
+  <rect width="512" height="512" rx="112" fill="#059669"/>
+  <path d="M126 128h256c22 0 40 18 40 40v244c0 22-18 40-40 40H126c-22 0-40-18-40-40V168c0-22 18-40 40-40Z" fill="#ecfdf5"/>
+  <path d="M142 92h244c20 0 36 16 36 36v54H142c-29 0-52 23-52 52v-90c0-25 20-52 52-52Z" fill="#34d399"/>
+  <path d="M164 238h94M164 296h132M164 354h80" stroke="#064e3b" stroke-width="26" stroke-linecap="round"/>
+  <circle cx="354" cy="316" r="64" fill="#facc15"/>
+  <path d="M354 276v80M320 316h68" stroke="#064e3b" stroke-width="20" stroke-linecap="round"/>
+</svg>
