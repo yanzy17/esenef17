@@ -1,0 +1,20 @@
+{
+  "name": "Buku Keuangan Digital",
+  "short_name": "Buku Keuangan",
+  "description": "PWA untuk mencatat pemasukan dan penjualan manual dengan rekap otomatis per bulan.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f5fbf7",
+  "theme_color": "#059669",
+  "categories": ["finance", "productivity", "business"],
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

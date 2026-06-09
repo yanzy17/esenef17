@@ -2,67 +2,66 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Affiliate Promo Assistant membantu affiliator pemula membuat angle, hook, caption, CTA, script video, review, balasan DM, dan target komisi tanpa API." />
-  <title>Affiliate Promo Assistant</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="description" content="Buku Keuangan Digital adalah PWA pencatat pemasukan dan penjualan manual dengan rekap otomatis per bulan." />
+  <meta name="theme-color" content="#059669" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Buku Keuangan" />
+  <title>Buku Keuangan Digital</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="icon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="icon.svg" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div class="app-shell">
     <aside class="sidebar" aria-label="Navigasi desktop">
-      <a class="brand" href="#dashboard" data-route="dashboard" aria-label="Affiliate Promo Assistant Home">
-        <span class="brand-mark">A</span>
+      <a class="brand" href="#dashboard" data-route="dashboard" aria-label="Buku Keuangan Digital">
+        <span class="brand-mark">BK</span>
         <span>
-          <strong>Affiliate Promo</strong>
-          <small>Assistant</small>
+          <strong>Buku Keuangan</strong>
+          <small>Digital</small>
         </span>
       </a>
       <nav class="side-nav" id="sideNav"></nav>
-      <div class="side-note">
-        <span>✨</span>
-        <p>100% static, tanpa API. Semua hasil dibuat langsung di browser kamu.</p>
+      <div class="side-panel">
+        <span class="side-panel-icon">💾</span>
+        <p>Data tersimpan otomatis di browser kamu lewat localStorage. Export rutin untuk backup.</p>
       </div>
     </aside>
 
     <main class="main-content">
-      <section class="hero" id="heroSection">
-        <div class="hero-copy">
-          <div class="hero-badges" id="heroBadges"></div>
-          <h1>Udah punya link affiliate, tapi bingung promosiinnya gimana?</h1>
-          <p>Masukkan produk, masalah pembeli, dan benefit-nya. Tools ini bantu bikin angle, hook, caption, CTA, script video, review, sampai balasan DM yang siap dipakai buat konten affiliate.</p>
-          <div class="hero-actions">
-            <a class="btn primary" href="#angle" data-route="angle">Mulai Bikin Konten</a>
-            <a class="btn secondary" href="#dashboard" data-route="dashboard">Lihat Tools</a>
-          </div>
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">PWA pencatat penjualan manual</p>
+          <h1 id="pageTitle">Dashboard</h1>
         </div>
-        <div class="hero-card" aria-label="Preview hasil tools">
-          <div class="hero-card-top">
-            <span class="pulse"></span>
-            <span>Preview Output</span>
-          </div>
-          <div class="preview-stack">
-            <div class="mini-result">
-              <strong>Hook</strong>
-              <p>“Kalau kamu sering stuck bikin konten affiliate, coba mulai dari masalah kecil yang audiens kamu rasain dulu.”</p>
-            </div>
-            <div class="mini-result accent">
-              <strong>CTA</strong>
-              <p>“Kalau mau aku kirimin linknya, komen ‘mau’ ya. Nanti aku bantu arahin pilih varian yang pas.”</p>
-            </div>
-          </div>
+        <div class="top-actions">
+          <select id="monthSelect" class="month-select" aria-label="Pilih bulan aktif"></select>
+          <button class="icon-btn" id="themeToggle" type="button" aria-label="Toggle dark mode">🌙</button>
+        </div>
+      </header>
+
+      <section class="hero-card">
+        <div class="hero-copy">
+          <span class="pill">Manual input · Rekap otomatis · Offline ready</span>
+          <h2>Catat pemasukan dari Lynk ID, WhatsApp, QRIS, marketplace, jasa, affiliate, dan sumber lainnya.</h2>
+          <p>Pilih bulan, input transaksi, lalu omzet, modal, keuntungan, produk terlaris, target, dan laporan langsung dihitung otomatis.</p>
+        </div>
+        <div class="hero-actions">
+          <button class="btn primary" type="button" data-route="tambah">+ Tambah Transaksi</button>
+          <button class="btn ghost" type="button" id="copySummaryBtn">Copy Ringkasan</button>
         </div>
       </section>
 
-      <section class="content-card" id="viewContainer" aria-live="polite"></section>
+      <section id="viewContainer" class="view-container" aria-live="polite"></section>
     </main>
   </div>
 
   <nav class="bottom-nav" id="bottomNav" aria-label="Navigasi mobile"></nav>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
-
+  <input type="file" id="importFile" accept="application/json" hidden />
   <script src="script.js"></script>
 </body>
 </html>
