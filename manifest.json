@@ -1,7 +1,7 @@
 {
   "name": "Buku Keuangan Digital",
   "short_name": "Buku Keuangan",
-  "description": "PWA untuk mencatat pemasukan dan penjualan manual dengan rekap otomatis per bulan.",
+  "description": "PWA ringan untuk catatan pemasukan, penjualan manual, buku keuangan digital, dan sales tracker offline.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",

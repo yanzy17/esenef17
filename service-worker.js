@@ -1,4 +1,4 @@
-const CACHE_NAME = "buku-keuangan-digital-v1";
+const CACHE_NAME = "buku-keuangan-digital-v2";
 const APP_SHELL = [
   "./",
   "./index.html",

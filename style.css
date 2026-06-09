@@ -155,3 +155,67 @@ th { color: var(--muted); font-size: .78rem; text-transform: uppercase; letter-s
   .bottom-nav { display: none; }
   .main-content { padding: 26px 30px 46px; }
 }
+
+/* Modern compact revision */
+.topbar { margin: 6px 0 10px; }
+.eyebrow { font-size: .7rem; }
+h1 { font-size: clamp(1.35rem, 4vw, 2.25rem); }
+.hero-card { padding: 18px; border-radius: 24px; gap: 12px; }
+.hero-copy h2 { margin: 10px 0 8px; font-size: clamp(1.18rem, 4.8vw, 2rem); line-height: 1.12; }
+.hero-copy p { font-size: .94rem; line-height: 1.55; max-width: 760px; }
+.hero-actions .btn.primary { min-width: min(100%, 220px); }
+.view-container { margin-top: 12px; }
+.card { border-radius: 20px; padding: 14px; box-shadow: 0 10px 34px rgba(15,23,42,.045); }
+.compact-metrics, .mini-metrics { gap: 10px; }
+.compact-metrics .metric, .mini-metrics .metric { min-height: 112px; justify-content: space-between; }
+.mini-metrics .metric { min-height: 96px; background: linear-gradient(180deg, var(--card), var(--card-2)); }
+.metric .value { font-size: clamp(1.1rem, 4.7vw, 1.72rem); line-height: 1.1; word-break: break-word; }
+.metric .label { font-size: .7rem; }
+.target-card .card-header { align-items: center; }
+.target-pct { color: var(--emerald); font-size: 1.5rem; }
+.inline-target { display: grid; grid-template-columns: 1fr auto; gap: 8px; }
+.insight-card .kv-row strong { text-align: right; }
+.tabs, .month-chips { padding: 4px 2px 7px; scroll-snap-type: x proximity; }
+.tabs .chip, .month-chips .chip { scroll-snap-align: start; }
+.chip { transition: background .18s ease, color .18s ease, transform .18s ease; }
+.chip:active, .btn:active, .icon-btn:active, .nav-link:active { transform: scale(.98); }
+.big-action { min-width: min(100%, 220px); min-height: 48px; font-size: .98rem; }
+.subform-title { color: var(--emerald); font-weight: 950; text-transform: uppercase; letter-spacing: .06em; font-size: .75rem; padding-top: 4px; }
+.profit-preview input { font-weight: 950; color: var(--emerald); background: rgba(16,185,129,.08); }
+.category-badge { display: inline-flex; width: fit-content; margin-top: 2px; padding: 4px 8px; border-radius: 999px; background: rgba(16,185,129,.12); color: var(--emerald); border: 1px solid rgba(16,185,129,.18); font-size: .72rem; font-weight: 900; }
+.tx-card { border-radius: 20px; box-shadow: 0 8px 22px rgba(15,23,42,.04); }
+.tx-meta { padding: 10px; border-radius: 16px; background: var(--card-2); }
+.empty { border: 1px dashed rgba(16,185,129,.32); border-radius: 18px; background: linear-gradient(180deg, rgba(16,185,129,.07), transparent); }
+.empty strong { display: block; color: var(--text); font-size: 1.05rem; }
+.toast { display: flex; align-items: center; gap: 8px; background: color-mix(in srgb, #052e24 92%, transparent); border: 1px solid rgba(255,255,255,.14); padding: 11px 14px; }
+.toast::before { content: "✓"; display: grid; place-items: center; width: 20px; height: 20px; border-radius: 999px; background: var(--emerald); font-size: .78rem; }
+.fab-add { position: fixed; z-index: 30; right: 14px; bottom: calc(var(--nav-h) + 18px); border: 0; min-height: 46px; padding: 0 16px; border-radius: 999px; color: white; background: linear-gradient(135deg, var(--emerald-dark), var(--emerald)); box-shadow: 0 18px 38px rgba(5,150,105,.32); font-weight: 950; }
+.bottom-nav { height: 66px; --nav-h: 66px; border-radius: 22px; padding: 7px; }
+.nav-link { border-radius: 14px; font-size: .64rem; }
+.nav-link .ico { font-size: 1rem; }
+table { min-width: 960px; }
+th { position: sticky; top: 0; z-index: 1; }
+
+@media (max-width: 380px) {
+  .main-content { padding-left: 10px; padding-right: 10px; }
+  .topbar { align-items: flex-start; }
+  .top-actions { flex-direction: column; align-items: stretch; }
+  .month-select { min-width: 112px; }
+  .tx-meta { grid-template-columns: 1fr; }
+  .fab-add { right: 10px; font-size: .88rem; }
+}
+
+@media (min-width: 520px) and (max-width: 759px) {
+  .grid.four.compact-metrics, .grid.four.mini-metrics { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (min-width: 760px) {
+  .hero-card { padding: 22px 24px; }
+  .fab-add { bottom: 22px; }
+}
+
+@media (min-width: 1040px) {
+  .fab-add { right: 30px; bottom: 28px; }
+  .card { padding: 16px; }
+  .hero-copy h2 { max-width: 780px; }
+}

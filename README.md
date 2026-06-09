@@ -1,8 +1,8 @@
 # Buku Keuangan Digital
 
-**Buku Keuangan Digital** adalah aplikasi web/PWA pure frontend untuk mencatat pemasukan atau penjualan manual dari HP. Aplikasi ini cocok untuk produk digital, APK premium, affiliate, jasa, Lynk ID, WhatsApp, QRIS, transfer, marketplace, dan sumber penjualan lain.
+**Buku Keuangan Digital** adalah aplikasi web/PWA pure frontend untuk catatan pemasukan, catatan penjualan, buku keuangan digital, dan sales tracker manual dari HP. Aplikasi tetap fokus pada pencatatan transaksi manual, bukan login, backend, database online, atau tool promosi.
 
-Aplikasi tidak menarik data otomatis dari platform mana pun. Semua transaksi diinput manual, lalu aplikasi menghitung omzet, modal, keuntungan, status pembayaran, target bulanan, dan rekap laporan secara otomatis.
+Aplikasi tidak menarik data otomatis dari platform mana pun. Semua transaksi diinput manual, lalu aplikasi menghitung omzet, modal, profit, status pembayaran, nominal belum lunas, target bulanan, insight produk/sumber/pembayaran, dan rekap laporan secara otomatis.
 
 ## Teknologi
 
@@ -13,51 +13,121 @@ Aplikasi tidak menarik data otomatis dari platform mana pun. Semua transaksi dii
 - `service-worker.js`
 - `localStorage` browser
 
-Tidak memakai React, Node.js, backend, framework berat, atau database server.
+Tidak memakai React, Node.js, backend, framework berat, atau database server. Aplikasi bisa langsung berjalan di hosting static seperti GitHub Pages.
 
 ## Fungsi Aplikasi
 
-- Dashboard ringkasan bulan aktif.
+- Dashboard compact dengan ringkasan omzet, profit, modal, dan transaksi bulan aktif.
+- Ringkasan cepat hari ini: omzet, profit, dan transaksi hari ini.
+- Ringkasan minggu ini: omzet, profit, dan total transaksi minggu ini.
+- Margin profit bulan ini dalam persen.
+- Ringkasan transaksi belum lunas: jumlah transaksi dan estimasi nominal belum lunas.
+- Target omzet bulanan dengan progress bar, sisa target, dan persentase tercapai.
+- Insight simpel: produk terlaris, sumber terbesar, pembayaran utama, kategori terbesar, dan margin profit.
 - Tambah transaksi lengkap dan mode **Tambah Cepat** untuk HP.
-- Sistem bulan otomatis berdasarkan tanggal transaksi.
-- Tabel transaksi seperti spreadsheet di desktop dan card transaksi di HP.
+- Tombol floating **+ Catat Penjualan** untuk langsung masuk ke tambah cepat.
+- Tabel transaksi modern di desktop dan card transaksi di HP.
+- Badge kategori kecil di card transaksi.
 - Edit, hapus, dan duplikat transaksi.
+- Produk cepat sederhana: nama produk, kategori, harga jual default, dan modal default.
+- Search, filter kategori, filter sumber penjualan, filter pembayaran, filter status, dan sortir transaksi.
+- Sortir tanggal terbaru, omzet terbesar, dan profit terbesar.
 - Rekap otomatis per bulan dan semua waktu.
-- Target omzet bulanan dengan progress, persentase, dan sisa target.
-- Daftar produk cepat agar harga dan modal default bisa terisi otomatis.
-- Search, filter, dan sortir transaksi.
 - Export/import backup JSON.
 - Export CSV untuk bulan aktif atau semua transaksi.
-- Copy ringkasan bulan ke clipboard.
-- Dark mode, bottom navigation mobile, sidebar desktop, toast notification, dan empty state.
+- Copy ringkasan bulan dengan format laporan rapi.
+- Dark mode, bottom navigation mobile, sidebar desktop, toast notification clean, dan empty state.
 - PWA offline setelah pertama kali dibuka.
+
+## Kategori Produk
+
+Kategori produk yang tersedia:
+
+- Produk Digital
+- APK Premium
+- Langganan Pro / Premium AI
+- Akses AI
+- Tools Digital
+- Affiliate
+- Jasa
+- E-book
+- Template Notion
+- Spreadsheet / Tracker
+- Canva / Design Asset
+- Video Editing / Preset
+- Kelas / Mentoring
+- Bundle Produk
+- Lainnya
+
+Kategori muncul di form transaksi, tambah cepat, filter transaksi, produk cepat, dan rekap/insight kategori.
+
+## Sumber Penjualan
+
+Sumber penjualan/platform yang tersedia:
+
+- Lynk ID
+- WhatsApp
+- Threads
+- Instagram
+- TikTok
+- Shopee
+- Telegram
+- QRIS Manual
+- Transfer Manual
+- Marketplace
+- Repeat Order
+- Referral
+- Langganan Pro / Premium AI
+- Lainnya
+
+Sumber penjualan muncul di form transaksi, tambah cepat, filter transaksi, rekap sumber, dan dashboard insight.
+
+## Metode Pembayaran
+
+Metode pembayaran yang tersedia:
+
+- QRIS DANA
+- QRIS GoPay
+- QRIS OVO
+- QRIS ShopeePay
+- Transfer Bank
+- DANA
+- GoPay
+- OVO
+- ShopeePay
+- Cash
+- Lynk ID Web
+- Lainnya
 
 ## Cara Pakai
 
 1. Buka `index.html` di browser modern atau upload folder ini ke hosting static.
-2. Pilih bulan aktif dari dropdown di kanan atas.
-3. Tekan **Tambah Transaksi** atau menu **Tambah**.
+2. Pilih bulan aktif dari dropdown kanan atas.
+3. Tekan **+ Catat Penjualan**, **Tambah Transaksi**, atau menu **Tambah**.
 4. Isi data transaksi manual.
 5. Simpan transaksi.
 6. Buka **Dashboard**, **Transaksi**, atau **Rekap** untuk melihat hasil otomatis.
 
 ## Cara Input Transaksi
 
-Menu **Tambah** menyediakan dua mode:
+Menu **Tambah** menyediakan dua mode.
 
 ### Form Lengkap
 
-Isi field berikut:
+Field utama di bagian atas:
 
 - Tanggal
 - Nama produk
-- Kategori produk
-- Platform / sumber penjualan
-- Jumlah terjual
-- Modal
+- Kategori
+- Sumber penjualan
 - Harga jual
+- Modal
+
+Field tambahan di bawah:
+
+- Jumlah
 - Diskon
-- Biaya admin / fee
+- Biaya admin
 - Metode pembayaran
 - Status
 - Catatan
@@ -66,10 +136,11 @@ Rumus yang dipakai:
 
 ```text
 Total harga jual = jumlah terjual x harga jual
-Keuntungan = total harga jual - modal - diskon - biaya admin
+Profit = total harga jual - modal - diskon - biaya admin
+Margin profit = profit / omzet x 100
 ```
 
-Jika status transaksi adalah **Refund**, transaksi tetap muncul di riwayat tetapi tidak dihitung ke omzet, modal aktif, dan keuntungan aktif.
+Jika status transaksi adalah **Refund**, transaksi tetap muncul di riwayat tetapi tidak dihitung ke omzet, modal aktif, dan profit aktif.
 
 ### Tambah Cepat
 
@@ -77,6 +148,8 @@ Mode ini untuk input cepat dari HP. Field yang tersedia:
 
 - Tanggal otomatis hari ini
 - Nama produk
+- Kategori
+- Sumber penjualan
 - Harga jual
 - Modal
 - Metode pembayaran
@@ -87,7 +160,7 @@ Mode ini untuk input cepat dari HP. Field yang tersedia:
 1. Pilih bulan aktif di dropdown kanan atas, misalnya **JUN 2026**.
 2. Dashboard akan menampilkan ringkasan bulan tersebut.
 3. Menu **Transaksi** menampilkan transaksi sesuai bulan aktif dan filter yang dipilih.
-4. Menu **Rekap** menampilkan total semua waktu dan tabel omzet/keuntungan per bulan.
+4. Menu **Rekap** menampilkan total semua waktu dan tabel omzet/profit per bulan.
 
 Transaksi otomatis masuk ke bulan sesuai tanggal input. Contoh:
 
@@ -98,16 +171,18 @@ Transaksi otomatis masuk ke bulan sesuai tanggal input. Contoh:
 
 1. Buka **Dashboard**.
 2. Isi target omzet pada kartu **Target Bulanan**.
-3. Tekan **Simpan Target**.
+3. Tekan **Simpan**.
 4. Aplikasi akan menampilkan progress, persentase target tercapai, dan sisa target.
 5. Jika target sudah tercapai, aplikasi menampilkan pesan positif.
 
 ## Produk Cepat / Daftar Produk
 
 1. Buka menu **Produk**.
-2. Tambahkan nama produk, kategori, harga default, modal default, dan catatan.
+2. Tambahkan nama produk, kategori, harga jual default, dan modal default.
 3. Saat membuat transaksi lengkap, pilih produk dari dropdown **Pilih produk cepat**.
 4. Nama produk, kategori, harga jual, dan modal akan terisi otomatis.
+
+Produk lama yang pernah punya catatan tetap aman saat import/export karena struktur data lama tetap dibaca, tetapi form produk cepat dibuat lebih simpel.
 
 ## Filter dan Pencarian
 
@@ -115,10 +190,12 @@ Menu **Transaksi** mendukung:
 
 - Search nama produk.
 - Filter kategori.
+- Filter sumber penjualan/platform.
 - Filter metode pembayaran.
 - Filter status.
 - Sortir tanggal terbaru.
-- Sortir keuntungan terbesar.
+- Sortir omzet terbesar.
+- Sortir profit terbesar.
 
 ## Export / Import Backup
 
@@ -143,17 +220,26 @@ Tekan **Reset Semua Data**, lalu ketik `RESET` pada prompt konfirmasi. Semua tra
 
 ## Copy Ringkasan Bulan
 
-Tekan tombol **Copy Ringkasan** di header hero atau menu **Rekap**. Formatnya seperti:
+Tekan tombol **Copy Ringkasan** di hero atau menu **Rekap**. Formatnya seperti:
 
 ```text
-Rekap Juni 2026:
+Rekap Juni 2026
 Omzet: Rp362.000
 Modal: Rp0
-Keuntungan: Rp362.000
-Total transaksi: 11
+Profit: Rp362.000
+Margin: 100%
+Transaksi: 11
+Belum lunas: 2 transaksi · Rp80.000
 Produk terlaris: Gemini Pro 6 B
-Metode pembayaran utama: QRIS DANA
+Sumber terbesar: Lynk ID
+Pembayaran utama: QRIS DANA
 ```
+
+## Kompatibilitas Data Lama
+
+Data tetap disimpan memakai key localStorage yang sama (`bukuKeuanganDigital:v1`) agar transaksi lama, produk lama, target lama, export/import JSON, export CSV, dan pengaturan tetap terbaca setelah update.
+
+Field baru seperti sumber penjualan yang lebih lengkap, margin, ringkasan hari ini/minggu ini, dan belum lunas dihitung dari data transaksi yang sudah ada tanpa menghapus data lama.
 
 ## Cara Upload ke GitHub Pages
 
