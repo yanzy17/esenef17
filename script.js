@@ -1,8 +1,8 @@
 const STORAGE_KEY = "bukuKeuanganDigital:v1";
 const MONTH_NAMES = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
-const CATEGORIES = ["Produk Digital", "APK Premium", "Affiliate", "Jasa", "Lainnya"];
-const PLATFORMS = ["Lynk ID", "WhatsApp", "Threads", "Instagram", "TikTok", "Shopee", "Telegram", "Manual", "Lainnya"];
-const PAYMENTS = ["QRIS DANA", "QRIS GoPay", "Transfer Bank", "E-wallet", "Cash", "Lynk ID Web", "Lainnya"];
+const CATEGORIES = ["Produk Digital", "APK Premium", "Langganan Pro / Premium AI", "Akses AI", "Tools Digital", "Affiliate", "Jasa", "E-book", "Template Notion", "Spreadsheet / Tracker", "Canva / Design Asset", "Video Editing / Preset", "Kelas / Mentoring", "Bundle Produk", "Lainnya"];
+const PLATFORMS = ["Lynk ID", "WhatsApp", "Threads", "Instagram", "TikTok", "Shopee", "Telegram", "QRIS Manual", "Transfer Manual", "Marketplace", "Repeat Order", "Referral", "Langganan Pro / Premium AI", "Lainnya"];
+const PAYMENTS = ["QRIS DANA", "QRIS GoPay", "QRIS OVO", "QRIS ShopeePay", "Transfer Bank", "DANA", "GoPay", "OVO", "ShopeePay", "Cash", "Lynk ID Web", "Lainnya"];
 const STATUSES = ["Lunas", "Belum Lunas", "Refund"];
 const navItems = [
   { id: "dashboard", label: "Dashboard", icon: "🏠" },
@@ -19,7 +19,7 @@ let state = {
   activeMonth: currentMonthKey(),
   editingId: null,
   productEditingId: null,
-  filters: { search: "", category: "Semua", payment: "Semua", status: "Semua", sort: "newest" },
+  filters: { search: "", category: "Semua", platform: "Semua", payment: "Semua", status: "Semua", sort: "newest" },
   toastTimer: null
 };
 
@@ -111,12 +111,14 @@ function getTransactionsForMonth(monthKey = state.activeMonth) {
 function applyFilters(items) {
   const f = state.filters;
   let list = [...items];
-  if (f.search) list = list.filter((tx) => tx.name.toLowerCase().includes(f.search.toLowerCase()));
+  if (f.search) list = list.filter((tx) => String(tx.name || "").toLowerCase().includes(f.search.toLowerCase()));
   if (f.category !== "Semua") list = list.filter((tx) => tx.category === f.category);
+  if (f.platform !== "Semua") list = list.filter((tx) => tx.platform === f.platform);
   if (f.payment !== "Semua") list = list.filter((tx) => tx.payment === f.payment);
   if (f.status !== "Semua") list = list.filter((tx) => tx.status === f.status);
-  if (f.sort === "profit") list.sort((a, b) => calcProfit(b) - calcProfit(a));
-  else list.sort((a, b) => new Date(b.date) - new Date(a.date) || b.createdAt - a.createdAt);
+  if (f.sort === "omzet") list.sort((a, b) => calcTotal(b) - calcTotal(a));
+  else if (f.sort === "profit") list.sort((a, b) => calcProfit(b) - calcProfit(a));
+  else list.sort((a, b) => new Date(b.date) - new Date(a.date) || number(b.createdAt) - number(a.createdAt));
   return list;
 }
 
@@ -143,8 +145,35 @@ function summarize(items) {
     refund: items.filter((tx) => tx.status === "Refund").length,
     topProduct: topBy(active, "name", (tx) => number(tx.qty)),
     topPayment: topBy(active, "payment"),
-    topPlatform: topBy(active, "platform", calcTotal)
+    topPlatform: topBy(active, "platform", calcTotal),
+    topCategory: topBy(active, "category", calcTotal),
+    unpaidAmount: items.filter((tx) => tx.status === "Belum Lunas").reduce((total, tx) => total + calcTotal(tx), 0),
+    margin: active.reduce((total, tx) => total + calcTotal(tx), 0) ? (active.reduce((total, tx) => total + calcProfit(tx), 0) / active.reduce((total, tx) => total + calcTotal(tx), 0)) * 100 : 0
   };
+}
+
+function isSameDate(date, ref = today()) {
+  return (date || today()).slice(0, 10) === ref;
+}
+
+function startOfWeek(date = new Date()) {
+  const d = new Date(date);
+  const day = d.getDay() || 7;
+  d.setHours(0, 0, 0, 0);
+  d.setDate(d.getDate() - day + 1);
+  return d;
+}
+
+function isThisWeek(date) {
+  const d = new Date(`${date || today()}T00:00:00`);
+  const start = startOfWeek();
+  const end = new Date(start);
+  end.setDate(start.getDate() + 7);
+  return d >= start && d < end;
+}
+
+function pctValue(value) {
+  return `${Math.round(number(value) * 10) / 10}%`;
 }
 
 function allMonthKeys() {
@@ -195,6 +224,7 @@ function setupShell() {
     render();
   });
   $("#copySummaryBtn").addEventListener("click", copyMonthSummary);
+  $("#quickAddFab")?.addEventListener("click", () => { state.route = "tambah"; location.hash = "tambah"; render(); setTimeout(() => document.querySelector('[data-tab="quick"]')?.click(), 0); });
   $("#importFile").addEventListener("change", handleImportFile);
   window.addEventListener("hashchange", () => {
     const next = location.hash.replace("#", "") || "dashboard";
@@ -232,36 +262,44 @@ function metric(label, value, hint = "", cls = "") {
 function renderDashboard() {
   const monthTx = getTransactionsForMonth();
   const sum = summarize(monthTx);
+  const todaySum = summarize(monthTx.filter((tx) => isSameDate(tx.date)));
+  const weekSum = summarize(monthTx.filter((tx) => isThisWeek(tx.date)));
   const target = number(db.targets[state.activeMonth]);
   const pct = target ? Math.min(100, Math.round((sum.omzet / target) * 100)) : 0;
   const remaining = Math.max(0, target - sum.omzet);
-  const lastTx = applyFilters(monthTx).slice(0, 4);
+  const lastTx = [...monthTx].sort((a, b) => new Date(b.date) - new Date(a.date) || number(b.createdAt) - number(a.createdAt)).slice(0, 4);
   view.innerHTML = `
     <div class="month-chips">${allMonthKeys().slice(0, 12).map((key) => `<button class="chip ${key === state.activeMonth ? "active" : ""}" data-month="${key}" type="button">${shortMonthLabel(key)}</button>`).join("")}</div>
-    <div class="grid four" style="margin-top:12px">
+    <div class="grid four compact-metrics" style="margin-top:12px">
       ${metric("Omzet bulan ini", money(sum.omzet), monthLabel(state.activeMonth), "good")}
+      ${metric("Profit bulan ini", money(sum.profit), `${sum.total} transaksi`, sum.profit >= 0 ? "good" : "bad")}
       ${metric("Modal bulan ini", money(sum.modal), "Refund tidak dihitung")}
-      ${metric("Keuntungan", money(sum.profit), `${sum.total} transaksi tercatat`, sum.profit >= 0 ? "good" : "bad")}
-      ${metric("Produk terjual", sum.sold, `${sum.lunas} lunas · ${sum.refund} refund`)}
+      ${metric("Transaksi bulan ini", sum.total, `${sum.lunas} lunas · ${sum.refund} refund`)}
+    </div>
+    <div class="grid four mini-metrics" style="margin-top:12px">
+      ${metric("Omzet hari ini", money(todaySum.omzet), `${todaySum.total} transaksi`, "good")}
+      ${metric("Profit hari ini", money(todaySum.profit), "Hari ini", todaySum.profit >= 0 ? "good" : "bad")}
+      ${metric("Omzet minggu ini", money(weekSum.omzet), `Profit ${money(weekSum.profit)} · ${weekSum.total} tx`)}
+      ${metric("Belum lunas", money(sum.unpaidAmount), `${sum.belum} transaksi`, "warn")}
     </div>
     <div class="grid two" style="margin-top:12px">
-      <section class="card">
-        <div class="card-header"><div><h3>Target ${monthLabel(state.activeMonth)}</h3><p class="muted">Isi target omzet bulanan dan pantau progress otomatis.</p></div></div>
-        <form id="targetForm" class="form-grid">
-          <div class="field"><label>Target omzet</label><input name="target" inputmode="numeric" type="number" min="0" value="${target || ""}" placeholder="Contoh: 1000000"></div>
-          <button class="btn primary" type="submit">Simpan Target</button>
+      <section class="card target-card">
+        <div class="card-header"><div><h3>Target Bulanan</h3><p class="muted">Progress ${monthLabel(state.activeMonth)}.</p></div><strong class="target-pct">${pct}%</strong></div>
+        <form id="targetForm" class="inline-target">
+          <input name="target" inputmode="numeric" type="number" min="0" value="${target || ""}" placeholder="Target omzet">
+          <button class="btn primary" type="submit">Simpan</button>
         </form>
         <div style="margin-top:14px" class="progress"><span style="width:${pct}%"></span></div>
-        <p class="muted" style="margin:10px 0 0">Target bulan ${MONTH_NAMES[Number(state.activeMonth.slice(5)) - 1]} sudah tercapai <strong>${pct}%</strong>. ${target ? `Sisa target: <strong>${money(remaining)}</strong>.` : "Belum ada target."} ${target && remaining === 0 ? "🎉 Target tercapai, pertahankan ritmenya!" : ""}</p>
+        <p class="muted" style="margin:10px 0 0">Sisa target: <strong>${target ? money(remaining) : "Belum diisi"}</strong>. ${target && remaining === 0 ? "🎉 Target tercapai." : ""}</p>
       </section>
-      <section class="card kv">
-        <div class="card-header"><div><h3>Insight Bulan Aktif</h3><p class="muted">Rekap otomatis dari transaksi non-refund.</p></div></div>
-        ${kv("Transaksi lunas", sum.lunas)}${kv("Belum lunas", sum.belum)}${kv("Refund", sum.refund)}${kv("Produk paling sering", sum.topProduct.label)}${kv("Pembayaran utama", sum.topPayment.label)}${kv("Platform paling menghasilkan", `${sum.topPlatform.label} · ${money(sum.topPlatform.value)}`)}
+      <section class="card kv insight-card">
+        <div class="card-header"><div><h3>Insight Simpel</h3><p class="muted">Berdasarkan transaksi aktif non-refund.</p></div></div>
+        ${kv("Produk terlaris", sum.topProduct.label)}${kv("Sumber terbesar", `${sum.topPlatform.label} · ${money(sum.topPlatform.value)}`)}${kv("Pembayaran utama", sum.topPayment.label)}${kv("Margin profit", pctValue(sum.margin))}
       </section>
     </div>
     <section class="card" style="margin-top:12px">
-      <div class="card-header"><div><h3>Transaksi Terbaru</h3><p class="muted">Riwayat terbaru untuk ${monthLabel(state.activeMonth)}.</p></div><button class="btn secondary small" data-route="transaksi">Lihat Semua</button></div>
-      ${lastTx.length ? renderTransactionCards(lastTx) : emptyState("Belum ada transaksi", "Tambahkan transaksi pertama untuk bulan ini.")}
+      <div class="card-header"><div><h3>Transaksi Terbaru</h3><p class="muted">4 transaksi terakhir bulan aktif.</p></div><button class="btn secondary small" data-route="transaksi">Lihat Semua</button></div>
+      ${lastTx.length ? renderTransactionCards(lastTx) : emptyState("Belum ada transaksi", "Mulai dari tombol + Catat Penjualan untuk mencatat pemasukan pertama.")}
     </section>`;
   view.querySelectorAll("[data-month]").forEach((btn) => btn.addEventListener("click", () => { state.activeMonth = btn.dataset.month; render(); }));
   $("#targetForm").addEventListener("submit", (event) => {
@@ -291,36 +329,39 @@ function renderAdd() {
 
 function renderTransactionForm(tx = {}) {
   return `
-    <div class="card-header"><div><h3>${tx?.id ? "Edit Transaksi" : "Tambah Transaksi Manual"}</h3><p class="muted">Keuntungan dihitung otomatis: total harga jual - modal - diskon - biaya admin.</p></div></div>
-    <form id="transactionForm" class="form-grid">
+    <div class="card-header"><div><h3>${tx?.id ? "Edit Transaksi" : "Tambah Transaksi Manual"}</h3><p class="muted">Field utama ada di atas. Keuntungan otomatis = total harga jual - modal - diskon - biaya admin.</p></div></div>
+    <form id="transactionForm" class="form-grid transaction-form">
       ${input("date", "Tanggal", "date", tx.date || today())}
       <div class="field"><label>Pilih produk cepat</label><select id="productPicker"><option value="">Tidak pakai produk cepat</option>${db.products.map((p) => `<option value="${p.id}">${escapeHTML(p.name)}</option>`).join("")}</select></div>
-      ${input("name", "Nama produk", "text", tx.name || "", "Contoh: Gemini Pro 6 B")}
-      ${selectField("category", "Kategori produk", CATEGORIES, tx.category || CATEGORIES[0])}
-      ${selectField("platform", "Platform / sumber penjualan", PLATFORMS, tx.platform || PLATFORMS[0])}
-      ${input("qty", "Jumlah terjual", "number", tx.qty || 1, "", "1")}
-      ${input("modal", "Modal", "number", tx.modal || 0)}
+      ${input("name", "Nama produk", "text", tx.name || "", "Contoh: Paket akses AI") }
+      ${selectField("category", "Kategori", CATEGORIES, tx.category || CATEGORIES[0])}
+      ${selectField("platform", "Sumber penjualan", PLATFORMS, tx.platform || PLATFORMS[0])}
       ${input("price", "Harga jual", "number", tx.price || 0)}
+      ${input("modal", "Modal", "number", tx.modal || 0)}
+      <div class="field profit-preview"><label>Keuntungan otomatis</label><input id="profitPreview" readonly value="${money(tx.id ? calcProfit(tx) : 0)}"></div>
+      <div class="field full subform-title"><span>Detail tambahan</span></div>
+      ${input("qty", "Jumlah", "number", tx.qty || 1, "", "1")}
       ${input("discount", "Diskon", "number", tx.discount || 0)}
-      ${input("fee", "Biaya admin / fee", "number", tx.fee || 0)}
-      <div class="field"><label>Keuntungan otomatis</label><input id="profitPreview" readonly value="${money(tx.id ? calcProfit(tx) : 0)}"></div>
+      ${input("fee", "Biaya admin", "number", tx.fee || 0)}
       ${selectField("payment", "Metode pembayaran", PAYMENTS, tx.payment || PAYMENTS[0])}
       ${selectField("status", "Status", STATUSES, tx.status || STATUSES[0])}
       <div class="field full"><label>Catatan</label><textarea name="note" placeholder="Catatan tambahan">${escapeHTML(tx.note || "")}</textarea></div>
-      <div class="field full form-actions"><button class="btn primary" type="submit">${tx?.id ? "Update Transaksi" : "Simpan Transaksi"}</button>${tx?.id ? `<button class="btn ghost" type="button" id="cancelEdit">Batal Edit</button>` : ""}</div>
+      <div class="field full form-actions"><button class="btn primary big-action" type="submit">${tx?.id ? "Update Transaksi" : "Simpan Transaksi"}</button>${tx?.id ? `<button class="btn ghost" type="button" id="cancelEdit">Batal Edit</button>` : ""}</div>
     </form>`;
 }
 
 function renderQuickForm() {
   return `
-    <div class="card-header"><div><h3>Tambah Cepat</h3><p class="muted">Untuk input cepat dari HP. Tanggal otomatis hari ini.</p></div></div>
+    <div class="card-header"><div><h3>Tambah Cepat</h3><p class="muted">Tanggal otomatis hari ini. Cocok untuk catat penjualan dari HP.</p></div></div>
     <form id="quickForm" class="form-grid">
       ${input("date", "Tanggal", "date", today())}
-      ${input("name", "Nama produk", "text", "")}
+      ${input("name", "Nama produk", "text", "", "Contoh: Template Notion") }
+      ${selectField("category", "Kategori", CATEGORIES, CATEGORIES[0])}
+      ${selectField("platform", "Sumber penjualan", PLATFORMS, PLATFORMS[0])}
       ${input("price", "Harga jual", "number", 0)}
       ${input("modal", "Modal", "number", 0)}
       ${selectField("payment", "Metode pembayaran", PAYMENTS, PAYMENTS[0])}
-      <div class="field full form-actions"><button class="btn primary" type="submit">Simpan Cepat</button></div>
+      <div class="field full form-actions"><button class="btn primary big-action" type="submit">Simpan Cepat</button></div>
     </form>`;
 }
 
@@ -365,7 +406,7 @@ function bindQuickForm() {
   $("#quickForm").addEventListener("submit", (event) => {
     event.preventDefault();
     const data = Object.fromEntries(new FormData(event.target));
-    const tx = normalizeTransaction({ ...data, qty: 1, discount: 0, fee: 0, category: "Lainnya", platform: "Manual", status: "Lunas", note: "Input cepat" });
+    const tx = normalizeTransaction({ ...data, qty: 1, discount: 0, fee: 0, status: "Lunas", note: "Input cepat" });
     if (!tx.name.trim()) return toast("Nama produk wajib diisi");
     db.transactions.push(tx);
     state.activeMonth = getMonthKey(tx.date);
@@ -377,7 +418,7 @@ function normalizeTransaction(data, id = null) {
   const existing = db.transactions.find((tx) => tx.id === id) || {};
   return {
     id: id || uid("tx"), createdAt: existing.createdAt || Date.now(), updatedAt: Date.now(),
-    date: data.date || today(), name: String(data.name || "").trim(), category: data.category || "Lainnya", platform: data.platform || "Manual",
+    date: data.date || today(), name: String(data.name || "").trim(), category: data.category || "Lainnya", platform: data.platform || "Lainnya",
     qty: number(data.qty) || 1, modal: number(data.modal), price: number(data.price), discount: number(data.discount), fee: number(data.fee),
     payment: data.payment || "Lainnya", status: data.status || "Lunas", note: String(data.note || "").trim()
   };
@@ -391,9 +432,10 @@ function renderTransactions() {
       <div class="form-grid">
         <div class="field"><label>Search nama produk</label><input id="filterSearch" value="${escapeHTML(state.filters.search)}" placeholder="Cari produk..."></div>
         ${filterSelect("filterCategory", "Filter kategori", ["Semua", ...CATEGORIES], state.filters.category)}
+        ${filterSelect("filterPlatform", "Filter sumber", ["Semua", ...PLATFORMS], state.filters.platform)}
         ${filterSelect("filterPayment", "Filter pembayaran", ["Semua", ...PAYMENTS], state.filters.payment)}
         ${filterSelect("filterStatus", "Filter status", ["Semua", ...STATUSES], state.filters.status)}
-        ${filterSelect("filterSort", "Sortir", [["newest", "Tanggal terbaru"], ["profit", "Keuntungan terbesar"]], state.filters.sort)}
+        ${filterSelect("filterSort", "Sortir", [["newest", "Tanggal terbaru"], ["omzet", "Omzet terbesar"], ["profit", "Profit terbesar"]], state.filters.sort)}
       </div>
     </section>
     <section class="card" style="margin-top:12px">
@@ -412,7 +454,7 @@ function filterSelect(id, label, items, selected) {
 }
 
 function bindFilters() {
-  const map = { filterSearch: "search", filterCategory: "category", filterPayment: "payment", filterStatus: "status", filterSort: "sort" };
+  const map = { filterSearch: "search", filterCategory: "category", filterPlatform: "platform", filterPayment: "payment", filterStatus: "status", filterSort: "sort" };
   Object.entries(map).forEach(([id, key]) => $("#" + id).addEventListener(id === "filterSearch" ? "input" : "change", (event) => { state.filters[key] = event.target.value; renderTransactions(); }));
 }
 
@@ -422,7 +464,7 @@ function renderTransactionTable(items) {
 }
 
 function renderTransactionCards(items) {
-  return `<div class="tx-card-list">${items.map((tx) => `<article class="tx-card"><div class="tx-top"><div><div class="tx-title">${escapeHTML(tx.name)}</div><p class="muted">${formatDate(tx.date)} · ${escapeHTML(tx.category)} · ${escapeHTML(tx.platform)}</p></div>${statusPill(tx.status)}</div><div class="tx-meta"><div><span>Harga Jual</span><strong>${money(calcTotal(tx))}</strong></div><div><span>Keuntungan</span><strong>${money(calcProfit(tx))}</strong></div><div><span>Modal</span><strong>${money(tx.modal)}</strong></div><div><span>Pembayaran</span><strong>${escapeHTML(tx.payment)}</strong></div></div>${txActions(tx.id)}</article>`).join("")}</div>`;
+  return `<div class="tx-card-list">${items.map((tx) => `<article class="tx-card"><div class="tx-top"><div><div class="tx-title">${escapeHTML(tx.name)}</div><p class="muted">${formatDate(tx.date)} · ${escapeHTML(tx.platform)}</p><span class="category-badge">${escapeHTML(tx.category || "Lainnya")}</span></div>${statusPill(tx.status)}</div><div class="tx-meta"><div><span>Harga Jual</span><strong>${money(calcTotal(tx))}</strong></div><div><span>Keuntungan</span><strong>${money(calcProfit(tx))}</strong></div><div><span>Modal</span><strong>${money(tx.modal)}</strong></div><div><span>Pembayaran</span><strong>${escapeHTML(tx.payment)}</strong></div></div>${txActions(tx.id)}</article>`).join("")}</div>`;
 }
 
 function statusPill(status) {
@@ -464,7 +506,6 @@ function renderProductForm(p = {}) {
     ${selectField("category", "Kategori", CATEGORIES, p?.category || CATEGORIES[0])}
     ${input("price", "Harga default", "number", p?.price || 0)}
     ${input("modal", "Modal default", "number", p?.modal || 0)}
-    <div class="field full"><label>Catatan</label><textarea name="note">${escapeHTML(p?.note || "")}</textarea></div>
     <div class="field full form-actions"><button class="btn primary" type="submit">${p?.id ? "Update Produk" : "Simpan Produk"}</button>${p?.id ? `<button class="btn ghost" type="button" id="cancelProductEdit">Batal</button>` : ""}</div>
   </form>`;
 }
@@ -478,7 +519,8 @@ function bindProductForm() {
   $("#productForm").addEventListener("submit", (event) => {
     event.preventDefault();
     const data = Object.fromEntries(new FormData(event.target));
-    const product = { id: state.productEditingId || uid("prd"), name: String(data.name || "").trim(), category: data.category, price: number(data.price), modal: number(data.modal), note: String(data.note || "").trim(), updatedAt: Date.now() };
+    const existingProduct = db.products.find((p) => p.id === state.productEditingId) || {};
+    const product = { ...existingProduct, id: state.productEditingId || uid("prd"), name: String(data.name || "").trim(), category: data.category, price: number(data.price), modal: number(data.modal), updatedAt: Date.now() };
     if (!product.name) return toast("Nama produk wajib diisi");
     if (state.productEditingId) db.products = db.products.map((p) => p.id === state.productEditingId ? product : p);
     else db.products.push(product);
@@ -513,7 +555,7 @@ function renderRecap() {
       <section class="card kv"><div class="card-header"><div><h3>Highlight Semua Bulan</h3><p class="muted">Ringkasan performa sepanjang waktu.</p></div></div>
         ${kv("Bulan omzet tertinggi", highestOmzet ? `${monthLabel(highestOmzet.key)} · ${money(highestOmzet.omzet)}` : "-")}
         ${kv("Bulan keuntungan tertinggi", highestProfit ? `${monthLabel(highestProfit.key)} · ${money(highestProfit.profit)}` : "-")}
-        ${kv("Produk terlaris", all.topProduct.label)}${kv("Metode pembayaran tersering", all.topPayment.label)}
+        ${kv("Produk terlaris", all.topProduct.label)}${kv("Sumber terbesar", all.topPlatform.label)}${kv("Kategori terbesar", all.topCategory.label)}${kv("Metode pembayaran tersering", all.topPayment.label)}
       </section>
       <section class="card"><div class="card-header"><div><h3>Backup Cepat</h3><p class="muted">Export laporan dari halaman rekap.</p></div></div><div class="form-actions"><button class="btn secondary" id="exportMonthCsv">Export CSV Bulan Aktif</button><button class="btn secondary" id="exportAllCsv">Export Semua CSV</button><button class="btn ghost" id="copySummaryRecap">Copy Ringkasan</button></div></section>
     </div>
@@ -586,7 +628,7 @@ function download(filename, content, type) {
 
 async function copyMonthSummary() {
   const sum = summarize(getTransactionsForMonth());
-  const text = `Rekap ${monthLabel(state.activeMonth)}:\nOmzet: ${money(sum.omzet)}\nModal: ${money(sum.modal)}\nKeuntungan: ${money(sum.profit)}\nTotal transaksi: ${sum.total}\nProduk terlaris: ${sum.topProduct.label}\nMetode pembayaran utama: ${sum.topPayment.label}`;
+  const text = `Rekap ${monthLabel(state.activeMonth)}\nOmzet: ${money(sum.omzet)}\nModal: ${money(sum.modal)}\nProfit: ${money(sum.profit)}\nMargin: ${pctValue(sum.margin)}\nTransaksi: ${sum.total}\nBelum lunas: ${sum.belum} transaksi · ${money(sum.unpaidAmount)}\nProduk terlaris: ${sum.topProduct.label}\nSumber terbesar: ${sum.topPlatform.label}\nPembayaran utama: ${sum.topPayment.label}`;
   try { await navigator.clipboard.writeText(text); toast("Ringkasan bulan disalin"); }
   catch { prompt("Copy ringkasan manual:", text); }
 }
