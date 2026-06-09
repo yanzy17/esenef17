@@ -1,77 +1,198 @@
-# Digital Seller OS — Notion Template untuk Produk Digital & Affiliate
+# Buku Keuangan Digital
 
-**Digital Seller OS** adalah paket template Notion all-in-one untuk pemula yang mau mulai jualan produk digital, affiliate Shopee/TikTok, dan promosi konten dari HP tanpa harus bikin sistem dari nol.
+**Buku Keuangan Digital** adalah aplikasi web/PWA pure frontend untuk mencatat pemasukan atau penjualan manual dari HP. Aplikasi ini cocok untuk produk digital, APK premium, affiliate, jasa, Lynk ID, WhatsApp, QRIS, transfer, marketplace, dan sumber penjualan lain.
 
-Template ini dibuat sebagai produk digital siap jual: ada dashboard utama, database CSV, panduan import, sales copy, bonus prompt, script DM, sampai action plan 30 hari.
+Aplikasi tidak menarik data otomatis dari platform mana pun. Semua transaksi diinput manual, lalu aplikasi menghitung omzet, modal, keuntungan, status pembayaran, target bulanan, dan rekap laporan secara otomatis.
 
-## Fitur Utama
+## Teknologi
 
-- Dashboard produk digital untuk tracking ide, file, harga, status upload, dan link jualan.
-- Content planner 30 hari untuk Threads, TikTok, dan Instagram.
-- Hook library 100 contoh, CTA library 50 contoh, dan prompt AI library siap pakai.
-- Affiliate tracker untuk riset produk Shopee/TikTok dan evaluasi performa konten.
-- Order, testimoni, dan income tracker dengan formula profit sederhana.
-- Starter guide jualan produk digital, affiliate guide, script DM, dan bonus pack.
+- `index.html`
+- `style.css`
+- `script.js`
+- `manifest.json`
+- `service-worker.js`
+- `localStorage` browser
 
-## Isi Paket
+Tidak memakai React, Node.js, backend, framework berat, atau database server.
+
+## Fungsi Aplikasi
+
+- Dashboard ringkasan bulan aktif.
+- Tambah transaksi lengkap dan mode **Tambah Cepat** untuk HP.
+- Sistem bulan otomatis berdasarkan tanggal transaksi.
+- Tabel transaksi seperti spreadsheet di desktop dan card transaksi di HP.
+- Edit, hapus, dan duplikat transaksi.
+- Rekap otomatis per bulan dan semua waktu.
+- Target omzet bulanan dengan progress, persentase, dan sisa target.
+- Daftar produk cepat agar harga dan modal default bisa terisi otomatis.
+- Search, filter, dan sortir transaksi.
+- Export/import backup JSON.
+- Export CSV untuk bulan aktif atau semua transaksi.
+- Copy ringkasan bulan ke clipboard.
+- Dark mode, bottom navigation mobile, sidebar desktop, toast notification, dan empty state.
+- PWA offline setelah pertama kali dibuka.
+
+## Cara Pakai
+
+1. Buka `index.html` di browser modern atau upload folder ini ke hosting static.
+2. Pilih bulan aktif dari dropdown di kanan atas.
+3. Tekan **Tambah Transaksi** atau menu **Tambah**.
+4. Isi data transaksi manual.
+5. Simpan transaksi.
+6. Buka **Dashboard**, **Transaksi**, atau **Rekap** untuk melihat hasil otomatis.
+
+## Cara Input Transaksi
+
+Menu **Tambah** menyediakan dua mode:
+
+### Form Lengkap
+
+Isi field berikut:
+
+- Tanggal
+- Nama produk
+- Kategori produk
+- Platform / sumber penjualan
+- Jumlah terjual
+- Modal
+- Harga jual
+- Diskon
+- Biaya admin / fee
+- Metode pembayaran
+- Status
+- Catatan
+
+Rumus yang dipakai:
 
 ```text
-Digital Seller OS/
-├── README.md
-├── notion-template.md
-├── import-guide.md
-├── sales-page-copy.md
-├── bonus-prompts.md
-├── csv/
-│   ├── produk-digital.csv
-│   ├── ide-produk.csv
-│   ├── content-planner.csv
-│   ├── hook-library.csv
-│   ├── cta-library.csv
-│   ├── affiliate-tracker.csv
-│   ├── order-testimoni.csv
-│   ├── income-tracker.csv
-│   ├── prompt-ai-library.csv
-│   └── action-plan-30-hari.csv
-└── assets/
-    ├── cover-text.md
-    ├── product-names.md
-    ├── tagline.md
-    └── page-structure.md
+Total harga jual = jumlah terjual x harga jual
+Keuntungan = total harga jual - modal - diskon - biaya admin
 ```
 
-## Target Pembeli
+Jika status transaksi adalah **Refund**, transaksi tetap muncul di riwayat tetapi tidak dihitung ke omzet, modal aktif, dan keuntungan aktif.
 
-- Pemula produk digital yang belum tahu mulai dari mana.
-- Affiliate Shopee/TikTok yang butuh sistem konten dan tracking.
-- Creator Threads/TikTok/Instagram yang ingin promosi lebih konsisten.
-- Orang yang mau jualan dari HP tapi butuh alur simpel.
-- Seller kecil yang perlu tempat rapi untuk produk, order, testimoni, dan income.
+### Tambah Cepat
 
-## Cara Menggunakan
+Mode ini untuk input cepat dari HP. Field yang tersedia:
 
-1. Buka `notion-template.md`, copy struktur halaman utama ke Notion.
-2. Import semua file CSV di folder `csv/` sebagai database Notion.
-3. Hubungkan database ke dashboard utama dengan linked database atau quick link.
-4. Isi profil seller, tambahkan produk pertama, lalu mulai action plan 30 hari.
-5. Pakai `bonus-prompts.md` untuk bikin hook, caption, CTA, deskripsi produk, dan balasan DM.
+- Tanggal otomatis hari ini
+- Nama produk
+- Harga jual
+- Modal
+- Metode pembayaran
+- Tombol simpan
 
-## Cara Import CSV ke Notion
+## Cara Lihat Rekap Bulan
 
-- Buka Notion → pilih **Import** → pilih **CSV**.
-- Upload salah satu file dari folder `csv/`.
-- Rename database sesuai nama file, misalnya `produk-digital.csv` menjadi **Produk Digital**.
-- Ulangi sampai semua database masuk.
-- Atur tipe kolom: harga/pemasukan menjadi Number, tanggal menjadi Date, status menjadi Select, link menjadi URL.
+1. Pilih bulan aktif di dropdown kanan atas, misalnya **JUN 2026**.
+2. Dashboard akan menampilkan ringkasan bulan tersebut.
+3. Menu **Transaksi** menampilkan transaksi sesuai bulan aktif dan filter yang dipilih.
+4. Menu **Rekap** menampilkan total semua waktu dan tabel omzet/keuntungan per bulan.
 
-## Cara Menjual Ulang sebagai Produk Digital
+Transaksi otomatis masuk ke bulan sesuai tanggal input. Contoh:
 
-- Jadikan template Notion final sebagai halaman yang bisa di-duplicate.
-- Upload file pendukung ke Google Drive atau Gumroad/Lynk ID.
-- Pakai `sales-page-copy.md` sebagai halaman jualan.
-- Gunakan bonus pack dan prompt pack sebagai nilai tambah.
-- Buat cover di Canva memakai teks dari folder `assets/`.
+- `15-06-2026` masuk ke **Juni 2026**.
+- `20-05-2026` masuk ke **Mei 2026**.
 
-## Catatan Lisensi
+## Target Bulanan
 
-Lisensi rekomendasi: **personal use untuk pembeli akhir**. Jika ingin menjual paket ini ulang, ubah nama brand, cover, contoh data, dan sales copy agar sesuai identitas toko kamu. Jangan klaim sebagai template resmi Notion, Shopee, TikTok, atau Lynk ID.
+1. Buka **Dashboard**.
+2. Isi target omzet pada kartu **Target Bulanan**.
+3. Tekan **Simpan Target**.
+4. Aplikasi akan menampilkan progress, persentase target tercapai, dan sisa target.
+5. Jika target sudah tercapai, aplikasi menampilkan pesan positif.
+
+## Produk Cepat / Daftar Produk
+
+1. Buka menu **Produk**.
+2. Tambahkan nama produk, kategori, harga default, modal default, dan catatan.
+3. Saat membuat transaksi lengkap, pilih produk dari dropdown **Pilih produk cepat**.
+4. Nama produk, kategori, harga jual, dan modal akan terisi otomatis.
+
+## Filter dan Pencarian
+
+Menu **Transaksi** mendukung:
+
+- Search nama produk.
+- Filter kategori.
+- Filter metode pembayaran.
+- Filter status.
+- Sortir tanggal terbaru.
+- Sortir keuntungan terbesar.
+
+## Export / Import Backup
+
+Buka menu **Pengaturan** atau **Rekap**.
+
+### Export JSON
+
+Tekan **Export JSON** untuk mengunduh seluruh data aplikasi, termasuk transaksi, produk cepat, target bulanan, dan pengaturan.
+
+### Import JSON
+
+Tekan **Import JSON**, lalu pilih file backup JSON yang pernah diexport dari aplikasi ini.
+
+### Export CSV
+
+- **Export CSV Bulan Aktif**: mengunduh transaksi sesuai bulan yang sedang dipilih.
+- **Export Semua CSV**: mengunduh semua transaksi sepanjang waktu.
+
+### Reset Data
+
+Tekan **Reset Semua Data**, lalu ketik `RESET` pada prompt konfirmasi. Semua transaksi, produk, target, dan pengaturan akan dihapus.
+
+## Copy Ringkasan Bulan
+
+Tekan tombol **Copy Ringkasan** di header hero atau menu **Rekap**. Formatnya seperti:
+
+```text
+Rekap Juni 2026:
+Omzet: Rp362.000
+Modal: Rp0
+Keuntungan: Rp362.000
+Total transaksi: 11
+Produk terlaris: Gemini Pro 6 B
+Metode pembayaran utama: QRIS DANA
+```
+
+## Cara Upload ke GitHub Pages
+
+1. Buat repository baru di GitHub.
+2. Upload semua file aplikasi ke repository.
+3. Masuk ke **Settings** → **Pages**.
+4. Pada bagian **Build and deployment**, pilih **Deploy from a branch**.
+5. Pilih branch utama, biasanya `main`, dan folder `/root`.
+6. Simpan dan tunggu URL GitHub Pages aktif.
+
+## Cara Upload ke Netlify
+
+1. Login ke Netlify.
+2. Pilih **Add new site** → **Deploy manually**.
+3. Drag & drop folder aplikasi ini ke Netlify.
+4. Netlify akan memberi URL website otomatis.
+5. Karena aplikasi pure static, tidak perlu build command.
+
+## Cara Install ke Layar Utama HP
+
+### Android / Chrome
+
+1. Buka URL aplikasi di Chrome.
+2. Tekan menu titik tiga.
+3. Pilih **Add to Home screen** atau **Install app**.
+4. Aplikasi akan muncul seperti aplikasi native.
+
+### iPhone / Safari
+
+1. Buka URL aplikasi di Safari.
+2. Tekan tombol **Share**.
+3. Pilih **Add to Home Screen**.
+4. Simpan.
+
+## Catatan Penyimpanan Data
+
+Semua data tersimpan di browser menggunakan `localStorage`. Artinya:
+
+- Data tersimpan di perangkat dan browser yang sama.
+- Data tidak otomatis tersinkron ke perangkat lain.
+- Jika cache/data browser dihapus, data aplikasi bisa ikut hilang.
+- Lakukan **Export JSON** secara rutin untuk backup.

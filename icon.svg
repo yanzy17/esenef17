@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Buku Keuangan Digital">
+  <rect width="512" height="512" rx="112" fill="#059669"/>
+  <path d="M142 118h220c20 0 36 16 36 36v254c0 20-16 36-36 36H142c-20 0-36-16-36-36V154c0-20 16-36 36-36Z" fill="#ecfdf5"/>
+  <path d="M156 94h214c18 0 32 14 32 32v48H156c-25 0-46 20-46 46V140c0-25 20-46 46-46Z" fill="#34d399"/>
+  <path d="M170 236h152M170 292h184M170 348h104" stroke="#064e3b" stroke-width="28" stroke-linecap="round"/>
+  <circle cx="358" cy="346" r="48" fill="#facc15"/>
+  <path d="M358 318v64M334 342h48" stroke="#064e3b" stroke-width="18" stroke-linecap="round"/>
+</svg>
