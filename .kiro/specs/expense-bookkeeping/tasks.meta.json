@@ -1,0 +1,41 @@
+{
+  "pbtResults": {
+    "1.1 Write property test for backward-compatible load": {
+      "status": "passed",
+      "lastRunTimestamp": 1781740223286
+    },
+    "2.1 Write property test for non-negative persisted amounts": {
+      "status": "passed",
+      "lastRunTimestamp": 1781740226111
+    },
+    "3.1 Write property test for month isolation": {
+      "status": "passed",
+      "lastRunTimestamp": 1781740228700
+    },
+    "4.1 Write property test for expense total equals category sum": {
+      "status": "passed",
+      "lastRunTimestamp": 1781740231568
+    },
+    "5.1 Write property test for net profit identity": {
+      "status": "passed",
+      "lastRunTimestamp": 1781740234155
+    },
+    "6.1 Write property test for cashflow net consistency and refund exclusion": {
+      "status": "passed",
+      "lastRunTimestamp": 1781740236828
+    },
+    "7.1 Write property test for budget classification correctness": {
+      "status": "passed",
+      "lastRunTimestamp": 1781740239308
+    },
+    "8.1 Write property test for recurring idempotency": {
+      "status": "passed",
+      "lastRunTimestamp": 1781740243229
+    },
+    "16.1 Write property test for export/import round-trip": {
+      "status": "passed",
+      "lastRunTimestamp": 1781740254561
+    }
+  },
+  "executionHistory": {}
+}

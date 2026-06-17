@@ -4,10 +4,14 @@ const CATEGORIES = ["Produk Digital", "APK Premium", "Langganan Pro / Premium AI
 const PLATFORMS = ["Lynk ID", "WhatsApp", "Threads", "Instagram", "TikTok", "Shopee", "Telegram", "QRIS Manual", "Transfer Manual", "Marketplace", "Repeat Order", "Referral", "Langganan Pro / Premium AI", "Lainnya"];
 const PAYMENTS = ["QRIS DANA", "QRIS GoPay", "QRIS OVO", "QRIS ShopeePay", "Transfer Bank", "DANA", "GoPay", "OVO", "ShopeePay", "Cash", "Lynk ID Web", "Lainnya"];
 const STATUSES = ["Lunas", "Belum Lunas", "Refund"];
+const EXPENSE_CATEGORIES = ["Iklan/Ads", "Langganan Tools", "Kuota/Internet", "Listrik", "Operasional", "Fee Platform", "Gaji/Komisi", "Lainnya"];
 const navItems = [
   { id: "dashboard", label: "Dashboard", icon: "🏠" },
   { id: "tambah", label: "Tambah", icon: "➕" },
   { id: "transaksi", label: "Transaksi", icon: "📒" },
+  { id: "pengeluaran", label: "Keluar", icon: "💸" },
+  { id: "cashflow", label: "Cashflow", icon: "💵" },
+  { id: "anggaran", label: "Anggaran", icon: "🎯" },
   { id: "produk", label: "Produk", icon: "📦" },
   { id: "rekap", label: "Rekap", icon: "📊" },
   { id: "pengaturan", label: "Atur", icon: "⚙️" }
@@ -15,25 +19,34 @@ const navItems = [
 
 let db = loadDB();
 let state = {
-  route: location.hash.replace("#", "") || "dashboard",
+  route: (typeof location !== "undefined" ? location.hash.replace("#", "") : "") || "dashboard",
   activeMonth: currentMonthKey(),
   editingId: null,
   productEditingId: null,
   filters: { search: "", category: "Semua", platform: "Semua", payment: "Semua", status: "Semua", sort: "newest" },
+  expenseFilters: { search: "", category: "Semua", payment: "Semua", sort: "newest" },
   toastTimer: null
 };
 
-const $ = (selector) => document.querySelector(selector);
+const $ = (selector) => (typeof document !== "undefined" ? document.querySelector(selector) : null);
 const view = $("#viewContainer");
 
 function defaultDB() {
-  return { transactions: [], products: [], targets: {}, settings: { theme: "light" } };
+  return { transactions: [], products: [], targets: {}, expenses: [], budgets: {}, settings: { theme: "light" } };
 }
 
 function loadDB() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? { ...defaultDB(), ...JSON.parse(raw) } : defaultDB();
+    if (!raw) return defaultDB();
+    const parsed = JSON.parse(raw);
+    return {
+      ...defaultDB(),
+      ...parsed,
+      expenses: Array.isArray(parsed.expenses) ? parsed.expenses : [],
+      budgets: (parsed.budgets && typeof parsed.budgets === "object" && !Array.isArray(parsed.budgets)) ? parsed.budgets : {},
+      settings: { ...defaultDB().settings, ...(parsed.settings || {}) }
+    };
   } catch (error) {
     console.warn(error);
     return defaultDB();
@@ -41,7 +54,14 @@ function loadDB() {
 }
 
 function saveDB() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
+    return true;
+  } catch (error) {
+    console.warn(error);
+    toast("Penyimpanan penuh, export & hapus data lama");
+    return false;
+  }
 }
 
 function uid(prefix = "id") {
@@ -106,6 +126,130 @@ function isActive(tx) {
 
 function getTransactionsForMonth(monthKey = state.activeMonth) {
   return db.transactions.filter((tx) => getMonthKey(tx.date) === monthKey);
+}
+
+/* ---------- Expense / bookkeeping data layer ---------- */
+
+function firstDayOf(monthKey) {
+  return `${monthKey}-01`;
+}
+
+function normalizeExpense(data, id = null) {
+  const existing = db.expenses.find((e) => e.id === id) || {};
+  const category = EXPENSE_CATEGORIES.includes(data.category) ? data.category : "Lainnya";
+  const expense = {
+    id: id || existing.id || uid("exp"),
+    createdAt: existing.createdAt || Date.now(),
+    updatedAt: Date.now(),
+    date: data.date || today(),
+    name: String(data.name || "").trim(),
+    category,
+    amount: number(data.amount),
+    payment: data.payment || PAYMENTS[0],
+    recurring: data.recurring === true || data.recurring === "on" || data.recurring === "true",
+    note: String(data.note || "").trim()
+  };
+  if (data.recurringFrom || existing.recurringFrom) expense.recurringFrom = data.recurringFrom || existing.recurringFrom;
+  return expense;
+}
+
+function isValidExpense(expense) {
+  return !!expense.name.trim() && number(expense.amount) > 0;
+}
+
+function getExpensesForMonth(monthKey = state.activeMonth) {
+  return db.expenses.filter((e) => getMonthKey(e.date) === monthKey);
+}
+
+function summarizeExpenses(expenses) {
+  const byCategory = {};
+  let total = 0;
+  expenses.forEach((e) => {
+    const amount = number(e.amount);
+    total += amount;
+    byCategory[e.category] = (byCategory[e.category] || 0) + amount;
+  });
+  let topCategory = { label: "-", value: 0 };
+  Object.entries(byCategory).forEach(([label, value]) => {
+    if (value > topCategory.value) topCategory = { label, value };
+  });
+  return { total, count: expenses.length, byCategory, topCategory };
+}
+
+function netProfit(monthKey = state.activeMonth) {
+  const income = summarize(getTransactionsForMonth(monthKey));
+  const expenses = summarizeExpenses(getExpensesForMonth(monthKey)).total;
+  const grossProfit = income.profit;
+  const net = grossProfit - expenses;
+  return { income: income.omzet, grossProfit, expenses, net, isProfit: net >= 0 };
+}
+
+function buildCashflow(monthKey = state.activeMonth, granularity = "day") {
+  const tx = granularity === "day" ? getTransactionsForMonth(monthKey) : db.transactions;
+  const exp = granularity === "day" ? getExpensesForMonth(monthKey) : db.expenses;
+  const keyOf = (date) => granularity === "day" ? (date || today()) : getMonthKey(date);
+  const points = {};
+  const ensure = (key) => (points[key] = points[key] || { key, in: 0, out: 0, net: 0 });
+  tx.filter(isActive).forEach((t) => { ensure(keyOf(t.date)).in += calcTotal(t); });
+  exp.forEach((e) => { ensure(keyOf(e.date)).out += number(e.amount); });
+  return Object.values(points)
+    .map((p) => ({ ...p, net: p.in - p.out }))
+    .sort((a, b) => (a.key < b.key ? -1 : a.key > b.key ? 1 : 0));
+}
+
+function budgetVsActual(monthKey = state.activeMonth) {
+  const planned = (db.budgets && db.budgets[monthKey]) || {};
+  const actual = summarizeExpenses(getExpensesForMonth(monthKey)).byCategory;
+  const categories = new Set([...Object.keys(planned), ...Object.keys(actual)]);
+  const rows = [];
+  categories.forEach((category) => {
+    const p = number(planned[category]);
+    const a = number(actual[category]);
+    const pct = p > 0 ? (a / p) * 100 : 0;
+    let level;
+    if (p === 0) level = "none";
+    else if (a > p) level = "over";
+    else if (pct >= 80 && pct <= 100) level = "warn";
+    else level = "ok";
+    rows.push({ category, planned: p, actual: a, pct, level });
+  });
+  return rows.sort((a, b) => b.actual - a.actual);
+}
+
+function carryOverRecurring(monthKey = state.activeMonth) {
+  const templates = db.expenses.filter((e) => e.recurring === true && !e.recurringFrom);
+  let created = 0;
+  templates.forEach((tpl) => {
+    let existsThisMonth = getMonthKey(tpl.date) === monthKey;
+    if (!existsThisMonth) {
+      existsThisMonth = db.expenses.some((e) => e.recurringFrom === tpl.id && getMonthKey(e.date) === monthKey);
+    }
+    if (!existsThisMonth) {
+      db.expenses.push({
+        ...tpl,
+        id: uid("exp"),
+        date: firstDayOf(monthKey),
+        recurring: true,
+        recurringFrom: tpl.id,
+        createdAt: Date.now(),
+        updatedAt: Date.now()
+      });
+      created++;
+    }
+  });
+  if (created > 0) saveDB();
+  return created;
+}
+
+function applyExpenseFilters(items) {
+  const f = state.expenseFilters;
+  let list = [...items];
+  if (f.search) list = list.filter((e) => String(e.name || "").toLowerCase().includes(f.search.toLowerCase()));
+  if (f.category !== "Semua") list = list.filter((e) => e.category === f.category);
+  if (f.payment !== "Semua") list = list.filter((e) => e.payment === f.payment);
+  if (f.sort === "amount") list.sort((a, b) => number(b.amount) - number(a.amount));
+  else list.sort((a, b) => new Date(b.date) - new Date(a.date) || number(b.createdAt) - number(a.createdAt));
+  return list;
 }
 
 function applyFilters(items) {
@@ -188,6 +332,7 @@ function allMonthKeys() {
 
 function toast(message) {
   const el = $("#toast");
+  if (!el) return;
   el.textContent = message;
   el.classList.add("show");
   clearTimeout(state.toastTimer);
@@ -237,7 +382,8 @@ function setupShell() {
 }
 
 function syncNav() {
-  $("#pageTitle").textContent = navItems.find((item) => item.id === state.route)?.label || "Dashboard";
+  const titles = { "tambah-pengeluaran": "Tambah Pengeluaran" };
+  $("#pageTitle").textContent = navItems.find((item) => item.id === state.route)?.label || titles[state.route] || "Dashboard";
   document.querySelectorAll(".nav-link").forEach((link) => link.classList.toggle("active", link.dataset.route === state.route));
   $("#themeToggle").textContent = db.settings.theme === "dark" ? "☀️" : "🌙";
 }
@@ -250,7 +396,8 @@ function renderMonthSelect() {
 function render() {
   renderMonthSelect();
   syncNav();
-  const routes = { dashboard: renderDashboard, tambah: renderAdd, transaksi: renderTransactions, produk: renderProducts, rekap: renderRecap, pengaturan: renderSettings };
+  if (state.activeMonth <= currentMonthKey()) carryOverRecurring(state.activeMonth);
+  const routes = { dashboard: renderDashboard, tambah: renderAdd, transaksi: renderTransactions, "tambah-pengeluaran": renderAddExpense, pengeluaran: renderExpenses, cashflow: renderCashflow, anggaran: renderBudgets, produk: renderProducts, rekap: renderRecap, pengaturan: renderSettings };
   (routes[state.route] || renderDashboard)();
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
@@ -262,6 +409,9 @@ function metric(label, value, hint = "", cls = "") {
 function renderDashboard() {
   const monthTx = getTransactionsForMonth();
   const sum = summarize(monthTx);
+  const np = netProfit(state.activeMonth);
+  const expSum = summarizeExpenses(getExpensesForMonth(state.activeMonth));
+  const expenseRatio = np.income ? (expSum.total / np.income) * 100 : 0;
   const todaySum = summarize(monthTx.filter((tx) => isSameDate(tx.date)));
   const weekSum = summarize(monthTx.filter((tx) => isThisWeek(tx.date)));
   const target = number(db.targets[state.activeMonth]);
@@ -282,6 +432,11 @@ function renderDashboard() {
       ${metric("Omzet minggu ini", money(weekSum.omzet), `Profit ${money(weekSum.profit)} · ${weekSum.total} tx`)}
       ${metric("Belum lunas", money(sum.unpaidAmount), `${sum.belum} transaksi`, "warn")}
     </div>
+    <div class="grid three net-metrics" style="margin-top:12px">
+      ${metric("Total Income", money(np.income), monthLabel(state.activeMonth), "good")}
+      ${metric("Total Pengeluaran", money(np.expenses), `${expSum.count} pengeluaran`, "bad")}
+      ${metric("Net Profit (real)", money(np.net), np.isProfit ? "🟢 Untung" : "🔴 Rugi", np.isProfit ? "good" : "bad")}
+    </div>
     <div class="grid two" style="margin-top:12px">
       <section class="card target-card">
         <div class="card-header"><div><h3>Target Bulanan</h3><p class="muted">Progress ${monthLabel(state.activeMonth)}.</p></div><strong class="target-pct">${pct}%</strong></div>
@@ -294,7 +449,7 @@ function renderDashboard() {
       </section>
       <section class="card kv insight-card">
         <div class="card-header"><div><h3>Insight Simpel</h3><p class="muted">Berdasarkan transaksi aktif non-refund.</p></div></div>
-        ${kv("Produk terlaris", sum.topProduct.label)}${kv("Sumber terbesar", `${sum.topPlatform.label} · ${money(sum.topPlatform.value)}`)}${kv("Pembayaran utama", sum.topPayment.label)}${kv("Margin profit", pctValue(sum.margin))}
+        ${kv("Produk terlaris", sum.topProduct.label)}${kv("Sumber terbesar", `${sum.topPlatform.label} · ${money(sum.topPlatform.value)}`)}${kv("Pembayaran utama", sum.topPayment.label)}${kv("Margin profit", pctValue(sum.margin))}${kv("Kategori pengeluaran terbesar", expSum.topCategory.label)}${kv("Rasio pengeluaran vs omzet", pctValue(expenseRatio))}
       </section>
     </div>
     <section class="card" style="margin-top:12px">
@@ -490,6 +645,159 @@ function bindTxActions() {
   }));
 }
 
+/* ---------- Expense views ---------- */
+
+function renderAddExpense() {
+  const editing = db.expenses.find((e) => e.id === state.editingId);
+  view.innerHTML = `
+    <section class="card" id="addExpensePanel">
+      <div class="card-header"><div><h3>${editing ? "Edit Pengeluaran" : "Tambah Pengeluaran"}</h3><p class="muted">Catat biaya operasional di luar modal produk: iklan, langganan tools, listrik, fee platform, dll.</p></div></div>
+      <form id="expenseForm" class="form-grid">
+        ${input("date", "Tanggal", "date", editing?.date || today())}
+        ${input("name", "Deskripsi pengeluaran", "text", editing?.name || "", "Contoh: Iklan Meta campaign Juni")}
+        ${selectField("category", "Kategori", EXPENSE_CATEGORIES, editing?.category || EXPENSE_CATEGORIES[0])}
+        ${input("amount", "Jumlah (Rp)", "number", editing?.amount || 0)}
+        ${selectField("payment", "Metode pembayaran", PAYMENTS, editing?.payment || PAYMENTS[0])}
+        <div class="field"><label>Berulang tiap bulan?</label><label class="check-row"><input type="checkbox" name="recurring" ${editing?.recurring ? "checked" : ""}> Jadikan pengeluaran rutin bulanan</label></div>
+        <div class="field full"><label>Catatan</label><textarea name="note" placeholder="Catatan tambahan">${escapeHTML(editing?.note || "")}</textarea></div>
+        <div class="field full form-actions"><button class="btn primary big-action" type="submit">${editing ? "Update Pengeluaran" : "Simpan Pengeluaran"}</button>${editing ? `<button class="btn ghost" type="button" id="cancelExpenseEdit">Batal Edit</button>` : ""}</div>
+      </form>
+    </section>`;
+  $("#expenseForm").addEventListener("submit", (event) => {
+    event.preventDefault();
+    const data = Object.fromEntries(new FormData(event.target));
+    data.recurring = event.target.elements.recurring.checked;
+    const expense = normalizeExpense(data, editing?.id);
+    if (!isValidExpense(expense)) return toast("Jumlah & deskripsi pengeluaran wajib diisi");
+    if (editing?.id) db.expenses = db.expenses.map((e) => e.id === editing.id ? expense : e);
+    else db.expenses.push(expense);
+    state.activeMonth = getMonthKey(expense.date);
+    state.editingId = null;
+    saveDB(); toast(editing?.id ? "Pengeluaran diperbarui" : "Pengeluaran tersimpan"); setRoute("pengeluaran");
+  });
+  $("#cancelExpenseEdit")?.addEventListener("click", () => { state.editingId = null; render(); });
+}
+
+function renderExpenses() {
+  const monthExp = applyExpenseFilters(getExpensesForMonth());
+  const sum = summarizeExpenses(getExpensesForMonth());
+  view.innerHTML = `
+    <div class="grid three" style="margin-bottom:12px">
+      ${metric("Total pengeluaran", money(sum.total), monthLabel(state.activeMonth), "bad")}
+      ${metric("Jumlah catatan", sum.count, "Bulan aktif")}
+      ${metric("Kategori terbesar", sum.topCategory.label, money(sum.topCategory.value))}
+    </div>
+    <section class="card">
+      <div class="card-header"><div><h3>Filter & Pencarian</h3><p class="muted">Cari, filter, dan sortir pengeluaran bulan aktif.</p></div><button class="btn primary small" data-route="tambah-pengeluaran">+ Tambah</button></div>
+      <div class="form-grid">
+        <div class="field"><label>Search deskripsi</label><input id="expFilterSearch" value="${escapeHTML(state.expenseFilters.search)}" placeholder="Cari pengeluaran..."></div>
+        ${filterSelect("expFilterCategory", "Filter kategori", ["Semua", ...EXPENSE_CATEGORIES], state.expenseFilters.category)}
+        ${filterSelect("expFilterPayment", "Filter pembayaran", ["Semua", ...PAYMENTS], state.expenseFilters.payment)}
+        ${filterSelect("expFilterSort", "Sortir", [["newest", "Tanggal terbaru"], ["amount", "Jumlah terbesar"]], state.expenseFilters.sort)}
+      </div>
+    </section>
+    <section class="card" style="margin-top:12px">
+      <div class="card-header"><div><h3>Pengeluaran ${monthLabel(state.activeMonth)}</h3><p class="muted">Desktop tampil tabel, HP tampil card.</p></div></div>
+      <div class="hide-mobile">${monthExp.length ? renderExpenseTable(monthExp) : emptyState("Belum ada pengeluaran", "Belum ada data untuk filter ini.")}</div>
+      <div class="hide-desktop">${monthExp.length ? renderExpenseCards(monthExp) : emptyState("Belum ada pengeluaran", "Belum ada data untuk filter ini.")}</div>
+    </section>`;
+  bindExpenseFilters(); bindExpenseActions();
+}
+
+function bindExpenseFilters() {
+  const map = { expFilterSearch: "search", expFilterCategory: "category", expFilterPayment: "payment", expFilterSort: "sort" };
+  Object.entries(map).forEach(([id, key]) => $("#" + id).addEventListener(id === "expFilterSearch" ? "input" : "change", (event) => { state.expenseFilters[key] = event.target.value; renderExpenses(); }));
+}
+
+function renderExpenseTable(items) {
+  return `<div class="table-wrap"><table><thead><tr><th>No</th><th>Tanggal</th><th>Deskripsi</th><th>Kategori</th><th>Jumlah</th><th>Pembayaran</th><th>Berulang</th><th>Aksi</th></tr></thead><tbody>${items.map((e, i) => `
+    <tr><td>${i + 1}</td><td>${formatDate(e.date)}</td><td><strong>${escapeHTML(e.name)}</strong>${e.note ? `<br><span class="muted">${escapeHTML(e.note)}</span>` : ""}</td><td><span class="category-badge expense">${escapeHTML(e.category)}</span></td><td><strong>${money(e.amount)}</strong></td><td>${escapeHTML(e.payment)}</td><td>${e.recurring ? "🔁 Ya" : "Tidak"}</td><td>${expenseActions(e.id)}</td></tr>`).join("")}</tbody></table></div>`;
+}
+
+function renderExpenseCards(items) {
+  return `<div class="tx-card-list">${items.map((e) => `<article class="tx-card expense-card"><div class="tx-top"><div><div class="tx-title">${escapeHTML(e.name)}</div><p class="muted">${formatDate(e.date)} · ${escapeHTML(e.payment)}</p><span class="category-badge expense">${escapeHTML(e.category)}</span> ${e.recurring ? `<span class="category-badge recurring">🔁 Rutin</span>` : ""}</div><strong class="expense-amount">${money(e.amount)}</strong></div>${e.note ? `<p class="muted">${escapeHTML(e.note)}</p>` : ""}${expenseActions(e.id)}</article>`).join("")}</div>`;
+}
+
+function expenseActions(id) {
+  return `<div class="actions"><button class="btn ghost small" data-exp-edit="${id}">Edit</button><button class="btn secondary small" data-exp-duplicate="${id}">Duplikat</button><button class="btn danger small" data-exp-delete="${id}">Hapus</button></div>`;
+}
+
+function bindExpenseActions() {
+  view.querySelectorAll("[data-exp-edit]").forEach((btn) => btn.addEventListener("click", () => { state.editingId = btn.dataset.expEdit; setRoute("tambah-pengeluaran"); }));
+  view.querySelectorAll("[data-exp-duplicate]").forEach((btn) => btn.addEventListener("click", () => {
+    const e = db.expenses.find((item) => item.id === btn.dataset.expDuplicate);
+    if (!e) return;
+    const clone = { ...e, id: uid("exp"), createdAt: Date.now(), updatedAt: Date.now(), date: today(), note: `${e.note || ""} (duplikat)`.trim() };
+    delete clone.recurringFrom;
+    db.expenses.push(clone);
+    saveDB(); toast("Pengeluaran diduplikat"); renderExpenses();
+  }));
+  view.querySelectorAll("[data-exp-delete]").forEach((btn) => btn.addEventListener("click", () => {
+    if (!confirm("Hapus pengeluaran ini?")) return;
+    db.expenses = db.expenses.filter((e) => e.id !== btn.dataset.expDelete);
+    saveDB(); toast("Pengeluaran dihapus"); renderExpenses();
+  }));
+}
+
+function renderCashflow() {
+  const daily = buildCashflow(state.activeMonth, "day");
+  const monthly = buildCashflow(state.activeMonth, "month");
+  view.innerHTML = `
+    <section class="card">
+      <div class="card-header"><div><h3>Cashflow Harian · ${monthLabel(state.activeMonth)}</h3><p class="muted">Uang masuk (omzet aktif, tanpa refund) vs uang keluar (pengeluaran) per hari.</p></div></div>
+      ${daily.length ? renderCashflowTable(daily, "day") : emptyState("Belum ada cashflow", "Belum ada pemasukan atau pengeluaran di bulan ini.")}
+    </section>
+    <section class="card" style="margin-top:12px">
+      <div class="card-header"><div><h3>Cashflow Bulanan</h3><p class="muted">Tren uang masuk vs keluar sepanjang waktu.</p></div></div>
+      ${monthly.length ? renderCashflowTable(monthly, "month") : emptyState("Belum ada cashflow", "Belum ada data pemasukan atau pengeluaran.")}
+    </section>`;
+}
+
+function renderCashflowTable(points, granularity) {
+  const label = (key) => granularity === "day" ? formatDate(key) : monthLabel(key);
+  return `<div class="table-wrap"><table><thead><tr><th>${granularity === "day" ? "Tanggal" : "Bulan"}</th><th>Masuk</th><th>Keluar</th><th>Net</th><th>Status</th></tr></thead><tbody>${points.map((p) => `
+    <tr><td><strong>${label(p.key)}</strong></td><td class="cf-in">${money(p.in)}</td><td class="cf-out">${money(p.out)}</td><td><strong>${money(p.net)}</strong></td><td>${p.net >= 0 ? `<span class="status-pill status-lunas">Surplus</span>` : `<span class="status-pill status-refund">Defisit</span>`}</td></tr>`).join("")}</tbody></table></div>`;
+}
+
+function renderBudgets() {
+  const monthKey = state.activeMonth;
+  const rows = budgetVsActual(monthKey);
+  const planned = (db.budgets && db.budgets[monthKey]) || {};
+  view.innerHTML = `
+    <section class="card">
+      <div class="card-header"><div><h3>Anggaran Bulanan · ${monthLabel(monthKey)}</h3><p class="muted">Tetapkan budget per kategori. Kosong atau 0 berarti tidak dianggarkan.</p></div></div>
+      <form id="budgetForm" class="form-grid">
+        ${EXPENSE_CATEGORIES.map((cat) => `<div class="field"><label>${escapeHTML(cat)}</label><input name="${escapeHTML(cat)}" type="number" min="0" inputmode="numeric" value="${planned[cat] ? number(planned[cat]) : ""}" placeholder="Budget ${escapeHTML(cat)}"></div>`).join("")}
+        <div class="field full form-actions"><button class="btn primary" type="submit">Simpan Anggaran</button></div>
+      </form>
+    </section>
+    <section class="card" style="margin-top:12px">
+      <div class="card-header"><div><h3>Budget vs Aktual</h3><p class="muted">Progress pengeluaran terhadap anggaran. ⚠️ kuning = mendekati (≥80%), 🔴 merah = melebihi budget.</p></div></div>
+      ${rows.length ? rows.map(renderBudgetRow).join("") : emptyState("Belum ada anggaran", "Tetapkan budget di atas atau catat pengeluaran untuk melihat perbandingan.")}
+    </section>`;
+  $("#budgetForm").addEventListener("submit", (event) => {
+    event.preventDefault();
+    const data = Object.fromEntries(new FormData(event.target));
+    const monthBudget = {};
+    EXPENSE_CATEGORIES.forEach((cat) => {
+      const value = number(data[cat]);
+      if (value > 0) monthBudget[cat] = value;
+    });
+    db.budgets[monthKey] = monthBudget;
+    saveDB(); toast("Anggaran disimpan"); renderBudgets();
+  });
+}
+
+function renderBudgetRow(row) {
+  const width = Math.min(100, row.pct);
+  const status = row.level === "over" ? "🔴 Melebihi budget" : row.level === "warn" ? "⚠️ Mendekati limit" : row.level === "none" ? "Tanpa budget" : "✅ Aman";
+  return `<div class="budget-row">
+    <div class="budget-head"><strong>${escapeHTML(row.category)}</strong><span class="muted">${money(row.actual)}${row.planned > 0 ? ` / ${money(row.planned)}` : ""}</span></div>
+    <div class="progress ${row.level}"><span style="width:${width}%"></span></div>
+    <div class="budget-foot"><span class="muted">${row.planned > 0 ? pctValue(row.pct) : "Belum dianggarkan"}</span><span class="budget-status budget-${row.level}">${status}</span></div>
+  </div>`;
+}
+
 function renderProducts() {
   const editing = db.products.find((p) => p.id === state.productEditingId);
   view.innerHTML = `
@@ -544,6 +852,7 @@ function renderRecap() {
   const monthlyRows = monthly.map((key) => ({ key, ...summarize(getTransactionsForMonth(key)) }));
   const highestOmzet = [...monthlyRows].sort((a, b) => b.omzet - a.omzet)[0];
   const highestProfit = [...monthlyRows].sort((a, b) => b.profit - a.profit)[0];
+  const np = netProfit(state.activeMonth);
   view.innerHTML = `
     <div class="grid four">
       ${metric("Total omzet semua waktu", money(all.omzet), "Refund tidak dihitung", "good")}
@@ -551,17 +860,23 @@ function renderRecap() {
       ${metric("Total modal", money(all.modal), "Semua bulan")}
       ${metric("Total transaksi", all.total, `${all.sold} produk terjual`)}
     </div>
+    <section class="card kv" style="margin-top:12px"><div class="card-header"><div><h3>Pembukuan ${monthLabel(state.activeMonth)}</h3><p class="muted">Ringkasan pembukuan lengkap bulan aktif: omzet, gross profit, pengeluaran, dan net profit sesungguhnya.</p></div></div>
+      ${kv("Omzet", money(np.income))}${kv("Gross Profit (margin penjualan)", money(np.grossProfit))}${kv("Total Pengeluaran", money(np.expenses))}
+      <div class="kv-row net-row"><span>Net Profit (real)</span><strong class="${np.isProfit ? "good-text" : "bad-text"}">${money(np.net)} ${np.isProfit ? "🟢" : "🔴"}</strong></div>
+    </section>
     <div class="grid two" style="margin-top:12px">
       <section class="card kv"><div class="card-header"><div><h3>Highlight Semua Bulan</h3><p class="muted">Ringkasan performa sepanjang waktu.</p></div></div>
         ${kv("Bulan omzet tertinggi", highestOmzet ? `${monthLabel(highestOmzet.key)} · ${money(highestOmzet.omzet)}` : "-")}
         ${kv("Bulan keuntungan tertinggi", highestProfit ? `${monthLabel(highestProfit.key)} · ${money(highestProfit.profit)}` : "-")}
         ${kv("Produk terlaris", all.topProduct.label)}${kv("Sumber terbesar", all.topPlatform.label)}${kv("Kategori terbesar", all.topCategory.label)}${kv("Metode pembayaran tersering", all.topPayment.label)}
       </section>
-      <section class="card"><div class="card-header"><div><h3>Backup Cepat</h3><p class="muted">Export laporan dari halaman rekap.</p></div></div><div class="form-actions"><button class="btn secondary" id="exportMonthCsv">Export CSV Bulan Aktif</button><button class="btn secondary" id="exportAllCsv">Export Semua CSV</button><button class="btn ghost" id="copySummaryRecap">Copy Ringkasan</button></div></section>
+      <section class="card"><div class="card-header"><div><h3>Backup Cepat</h3><p class="muted">Export laporan dari halaman rekap.</p></div></div><div class="form-actions"><button class="btn secondary" id="exportMonthCsv">Export CSV Transaksi Bulan</button><button class="btn secondary" id="exportAllCsv">Export Semua Transaksi</button><button class="btn secondary" id="exportMonthExpCsv">Export Pengeluaran Bulan</button><button class="btn secondary" id="exportAllExpCsv">Export Semua Pengeluaran</button><button class="btn ghost" id="copySummaryRecap">Copy Ringkasan</button></div></section>
     </div>
     <section class="card" style="margin-top:12px"><div class="card-header"><div><h3>Rekap Omzet & Keuntungan per Bulan</h3><p class="muted">Klik bulan di header untuk melihat detail transaksi.</p></div></div>${monthlyRows.length ? renderMonthlyTable(monthlyRows) : emptyState("Belum ada rekap", "Input transaksi untuk membuat laporan bulanan otomatis.")}</section>`;
   $("#exportMonthCsv").addEventListener("click", () => exportCSV(getTransactionsForMonth(), `rekap-${state.activeMonth}.csv`));
   $("#exportAllCsv").addEventListener("click", () => exportCSV(db.transactions, "semua-transaksi.csv"));
+  $("#exportMonthExpCsv").addEventListener("click", () => exportExpensesCSV(getExpensesForMonth(), `pengeluaran-${state.activeMonth}.csv`));
+  $("#exportAllExpCsv").addEventListener("click", () => exportExpensesCSV(db.expenses, "semua-pengeluaran.csv"));
   $("#copySummaryRecap").addEventListener("click", copyMonthSummary);
 }
 
@@ -572,13 +887,14 @@ function renderMonthlyTable(rows) {
 function renderSettings() {
   view.innerHTML = `
     <div class="grid two">
-      <section class="card"><div class="card-header"><div><h3>Export & Import Backup</h3><p class="muted">Simpan cadangan data secara rutin karena data utama ada di browser/localStorage.</p></div></div><div class="form-actions"><button class="btn primary" id="exportJson">Export JSON</button><button class="btn ghost" id="importJson">Import JSON</button><button class="btn secondary" id="exportMonthCsv">Export CSV Bulan Aktif</button><button class="btn secondary" id="exportAllCsv">Export Semua CSV</button></div></section>
+      <section class="card"><div class="card-header"><div><h3>Export & Import Backup</h3><p class="muted">Simpan cadangan data secara rutin karena data utama ada di browser/localStorage.</p></div></div><div class="form-actions"><button class="btn primary" id="exportJson">Export JSON</button><button class="btn ghost" id="importJson">Import JSON</button><button class="btn secondary" id="exportMonthCsv">Export CSV Bulan Aktif</button><button class="btn secondary" id="exportAllCsv">Export Semua CSV</button><button class="btn secondary" id="exportAllExpCsv">Export Pengeluaran CSV</button></div></section>
       <section class="card"><div class="card-header"><div><h3>Preferensi</h3><p class="muted">Atur tampilan dan keamanan data.</p></div></div><div class="setting-row"><div><strong>Dark mode</strong><p class="muted">Mode gelap nyaman dipakai malam hari.</p></div><button class="btn ghost" id="settingsTheme">${db.settings.theme === "dark" ? "Pakai Light Mode" : "Pakai Dark Mode"}</button></div><hr style="border:0;border-top:1px solid var(--line);margin:16px 0"><button class="btn danger" id="resetAll">Reset Semua Data</button></section>
     </div>`;
   $("#exportJson").addEventListener("click", exportJSON);
   $("#importJson").addEventListener("click", () => $("#importFile").click());
   $("#exportMonthCsv").addEventListener("click", () => exportCSV(getTransactionsForMonth(), `rekap-${state.activeMonth}.csv`));
   $("#exportAllCsv").addEventListener("click", () => exportCSV(db.transactions, "semua-transaksi.csv"));
+  $("#exportAllExpCsv").addEventListener("click", () => exportExpensesCSV(db.expenses, "semua-pengeluaran.csv"));
   $("#settingsTheme").addEventListener("click", toggleTheme);
   $("#resetAll").addEventListener("click", resetAllData);
 }
@@ -602,7 +918,13 @@ function handleImportFile(event) {
     try {
       const imported = JSON.parse(reader.result);
       if (!imported || !Array.isArray(imported.transactions)) throw new Error("Format tidak valid");
-      db = { ...defaultDB(), ...imported, settings: { ...defaultDB().settings, ...(imported.settings || {}) } };
+      db = {
+        ...defaultDB(),
+        ...imported,
+        expenses: Array.isArray(imported.expenses) ? imported.expenses : [],
+        budgets: (imported.budgets && typeof imported.budgets === "object" && !Array.isArray(imported.budgets)) ? imported.budgets : {},
+        settings: { ...defaultDB().settings, ...(imported.settings || {}) }
+      };
       saveDB(); toast("Data backup berhasil diimport"); render();
     } catch (error) { toast("Import gagal: file JSON tidak valid"); }
     event.target.value = "";
@@ -616,6 +938,14 @@ function exportCSV(items, filename) {
   const csv = rows.map((row) => row.map((cell) => `"${String(cell ?? "").replace(/"/g, '""')}"`).join(",")).join("\n");
   download(filename, csv, "text/csv;charset=utf-8");
   toast("CSV diunduh");
+}
+
+function exportExpensesCSV(items, filename) {
+  const rows = [["Tanggal", "Deskripsi", "Kategori", "Jumlah", "Metode Pembayaran", "Berulang", "Catatan"]];
+  items.forEach((e) => rows.push([e.date, e.name, e.category, e.amount, e.payment, e.recurring ? "Ya" : "Tidak", e.note]));
+  const csv = rows.map((row) => row.map((cell) => `"${String(cell ?? "").replace(/"/g, '""')}"`).join(",")).join("\n");
+  download(filename, csv, "text/csv;charset=utf-8");
+  toast("CSV pengeluaran diunduh");
 }
 
 function download(filename, content, type) {
@@ -643,5 +973,40 @@ function emptyState(title, desc) {
   return `<div class="empty"><span class="emoji">📝</span><strong>${title}</strong><p>${desc}</p></div>`;
 }
 
-setupShell();
-render();
+if (typeof document !== "undefined") {
+  setupShell();
+  render();
+}
+
+if (typeof module !== "undefined" && module.exports) {
+  module.exports = {
+    defaultDB,
+    loadDB,
+    normalizeExpense,
+    isValidExpense,
+    getExpensesForMonth,
+    getTransactionsForMonth,
+    firstDayOf,
+    summarize,
+    summarizeExpenses,
+    netProfit,
+    buildCashflow,
+    budgetVsActual,
+    carryOverRecurring,
+    applyExpenseFilters,
+    getMonthKey,
+    number,
+    money,
+    calcTotal,
+    calcProfit,
+    isActive,
+    uid,
+    today,
+    EXPENSE_CATEGORIES,
+    PAYMENTS,
+    _setDB: (d) => { db = d; },
+    _getDB: () => db,
+    _setState: (s) => { state = s; },
+    _getState: () => state
+  };
+}
