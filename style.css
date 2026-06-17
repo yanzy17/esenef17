@@ -214,8 +214,52 @@ th { position: sticky; top: 0; z-index: 1; }
   .fab-add { bottom: 22px; }
 }
 
+
 @media (min-width: 1040px) {
   .fab-add { right: 30px; bottom: 28px; }
   .card { padding: 16px; }
   .hero-copy h2 { max-width: 780px; }
 }
+
+/* ---------- Expense & bookkeeping module ---------- */
+/* Bottom nav now holds more than 6 items: scroll horizontally on small screens */
+.bottom-nav { grid-template-columns: repeat(9, minmax(40px, 1fr)); overflow-x: auto; scrollbar-width: none; }
+.bottom-nav::-webkit-scrollbar { display: none; }
+.nav-link { min-width: 40px; }
+.nav-link .ico { font-size: .98rem; }
+
+.net-metrics .metric { min-height: 104px; background: linear-gradient(180deg, var(--card), var(--card-2)); }
+
+.category-badge.expense { background: rgba(245,158,11,.12); color: var(--amber); border-color: rgba(245,158,11,.22); }
+.category-badge.recurring { background: rgba(37,99,235,.12); color: var(--blue); border-color: rgba(37,99,235,.2); }
+.expense-card .expense-amount { color: var(--red); font-size: 1.05rem; font-weight: 950; white-space: nowrap; }
+.expense-card .tx-top { align-items: flex-start; }
+
+/* Cashflow */
+.cf-in { color: var(--emerald); font-weight: 800; }
+.cf-out { color: var(--red); font-weight: 800; }
+
+/* Net profit highlight in recap */
+.net-row strong.good-text { color: var(--emerald); }
+.net-row strong.bad-text { color: var(--red); }
+.good-text { color: var(--emerald); }
+.bad-text { color: var(--red); }
+
+/* Recurring checkbox row */
+.check-row { display: flex; align-items: center; gap: 10px; font-weight: 700; color: var(--text); border: 1px solid var(--line); background: var(--card); border-radius: 14px; padding: 12px 13px; }
+.check-row input { width: auto; }
+
+/* Budget progress bars */
+.budget-row { padding: 12px 0; border-bottom: 1px dashed var(--line); }
+.budget-row:last-child { border-bottom: 0; }
+.budget-head { display: flex; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
+.budget-foot { display: flex; justify-content: space-between; gap: 10px; margin-top: 6px; font-size: .82rem; }
+.budget-status { font-weight: 900; }
+.budget-over { color: var(--red); }
+.budget-warn { color: var(--amber); }
+.budget-ok { color: var(--emerald); }
+.budget-none { color: var(--muted); }
+.progress.ok > span { background: linear-gradient(90deg, var(--emerald), #a3e635); }
+.progress.warn > span { background: linear-gradient(90deg, var(--amber), #fbbf24); }
+.progress.over > span { background: linear-gradient(90deg, #dc2626, var(--red)); }
+.progress.none > span { background: rgba(148,163,184,.45); }
