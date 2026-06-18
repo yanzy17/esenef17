@@ -435,8 +435,12 @@ function renderDashboard() {
     <div class="grid three net-metrics" style="margin-top:12px">
       ${metric("Total Income", money(np.income), monthLabel(state.activeMonth), "good")}
       ${metric("Total Pengeluaran", money(np.expenses), `${expSum.count} pengeluaran`, "bad")}
-      ${metric("Net Profit (real)", money(np.net), np.isProfit ? "🟢 Untung" : "🔴 Rugi", np.isProfit ? "good" : "bad")}
+      ${metric("Net Profit (real)", money(np.net), np.isProfit ? `<span class="dot good"></span>Untung` : `<span class="dot bad"></span>Rugi`, np.isProfit ? "good" : "bad")}
     </div>
+    <section class="card" style="margin-top:12px">
+      <div class="card-header"><div><h3>Tren Cashflow Bulanan</h3><p class="muted">Net, uang masuk, dan keluar sepanjang waktu.</p></div><button class="btn secondary small" data-route="cashflow">Detail</button></div>
+      ${cashflowChart(buildCashflow(state.activeMonth, "month"), (key) => shortMonthLabel(key))}
+    </section>
     <div class="grid two" style="margin-top:12px">
       <section class="card target-card">
         <div class="card-header"><div><h3>Target Bulanan</h3><p class="muted">Progress ${monthLabel(state.activeMonth)}.</p></div><strong class="target-pct">${pct}%</strong></div>
@@ -739,11 +743,98 @@ function bindExpenseActions() {
   }));
 }
 
+function compactRupiah(value) {
+  const n = number(value);
+  const abs = Math.abs(n);
+  const sign = n < 0 ? "-" : "";
+  if (abs >= 1e9) return `${sign}${Math.round(abs / 1e8) / 10} M`;
+  if (abs >= 1e6) return `${sign}${Math.round(abs / 1e5) / 10} jt`;
+  if (abs >= 1e3) return `${sign}${Math.round(abs / 1e2) / 10} rb`;
+  return `${sign}${abs}`;
+}
+
+// Dependency-free inline SVG line/area chart for cashflow trend.
+// Reads points from buildCashflow output: [{ key, in, out, net }]
+function cashflowChart(points, labelFn = (k) => k) {
+  if (!Array.isArray(points) || points.length === 0) {
+    return emptyState("Belum ada grafik", "Grafik tren akan muncul setelah ada pemasukan atau pengeluaran.");
+  }
+  const W = 720, H = 240;
+  const padL = 52, padR = 16, padT = 16, padB = 34;
+  const plotW = W - padL - padR;
+  const plotH = H - padT - padB;
+  const n = points.length;
+
+  const values = [];
+  points.forEach((p) => { values.push(number(p.in), number(p.out), number(p.net)); });
+  let max = Math.max(0, ...values);
+  let min = Math.min(0, ...values);
+  if (max === min) { max = max + 1; min = min - 1; }
+  const range = max - min;
+
+  const x = (i) => padL + (n === 1 ? plotW / 2 : (i / (n - 1)) * plotW);
+  const y = (v) => padT + plotH - ((number(v) - min) / range) * plotH;
+
+  // Horizontal gridlines (5 levels) with compact labels
+  const gridCount = 4;
+  let grid = "";
+  for (let g = 0; g <= gridCount; g++) {
+    const val = min + (range * g) / gridCount;
+    const gy = y(val);
+    grid += `<line class="cf-grid" x1="${padL}" y1="${gy.toFixed(1)}" x2="${(W - padR).toFixed(1)}" y2="${gy.toFixed(1)}"></line>`;
+    grid += `<text class="cf-axis-label" x="${padL - 8}" y="${(gy + 3).toFixed(1)}" text-anchor="end">${escapeHTML(compactRupiah(val))}</text>`;
+  }
+
+  const lineFor = (getter) => points.map((p, i) => `${x(i).toFixed(1)},${y(getter(p)).toFixed(1)}`).join(" ");
+  const netPts = lineFor((p) => p.net);
+  const inPts = lineFor((p) => p.in);
+  const outPts = lineFor((p) => p.out);
+
+  // Area under net line down to baseline (zero or chart bottom)
+  const baseY = y(Math.max(min, 0));
+  const areaPath = `${x(0).toFixed(1)},${baseY.toFixed(1)} ${netPts} ${x(n - 1).toFixed(1)},${baseY.toFixed(1)}`;
+
+  // X axis labels: show up to ~6 evenly spaced to avoid clutter
+  const maxLabels = 6;
+  const step = Math.max(1, Math.ceil(n / maxLabels));
+  let xLabels = "";
+  points.forEach((p, i) => {
+    if (i % step !== 0 && i !== n - 1) return;
+    const anchor = i === 0 ? "start" : (i === n - 1 ? "end" : "middle");
+    xLabels += `<text class="cf-axis-label" x="${x(i).toFixed(1)}" y="${H - 10}" text-anchor="${anchor}">${escapeHTML(labelFn(p.key))}</text>`;
+  });
+
+  // Dots for net at each point
+  const dots = points.map((p, i) => `<circle class="cf-dot" cx="${x(i).toFixed(1)}" cy="${y(p.net).toFixed(1)}" r="${n > 20 ? 1.6 : 3}"></circle>`).join("");
+
+  return `
+    <div class="cf-chart">
+      <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Grafik tren cashflow">
+        ${grid}
+        <polygon class="cf-area" points="${areaPath}"></polygon>
+        <polyline class="cf-line-in" points="${inPts}"></polyline>
+        <polyline class="cf-line-out" points="${outPts}"></polyline>
+        <polyline class="cf-line-net" points="${netPts}"></polyline>
+        ${dots}
+        ${xLabels}
+      </svg>
+      <div class="cf-legend">
+        <span><i class="net"></i>Net</span>
+        <span><i class="in"></i>Masuk</span>
+        <span><i class="out"></i>Keluar</span>
+      </div>
+    </div>`;
+}
+
 function renderCashflow() {
   const daily = buildCashflow(state.activeMonth, "day");
   const monthly = buildCashflow(state.activeMonth, "month");
   view.innerHTML = `
     <section class="card">
+      <div class="card-header"><div><h3>Tren Cashflow Bulanan</h3><p class="muted">Pergerakan uang masuk, keluar, dan net sepanjang waktu.</p></div></div>
+      ${cashflowChart(monthly, (key) => shortMonthLabel(key))}
+    </section>
+    <section class="card" style="margin-top:12px">
       <div class="card-header"><div><h3>Cashflow Harian · ${monthLabel(state.activeMonth)}</h3><p class="muted">Uang masuk (omzet aktif, tanpa refund) vs uang keluar (pengeluaran) per hari.</p></div></div>
       ${daily.length ? renderCashflowTable(daily, "day") : emptyState("Belum ada cashflow", "Belum ada pemasukan atau pengeluaran di bulan ini.")}
     </section>
@@ -790,7 +881,7 @@ function renderBudgets() {
 
 function renderBudgetRow(row) {
   const width = Math.min(100, row.pct);
-  const status = row.level === "over" ? "🔴 Melebihi budget" : row.level === "warn" ? "⚠️ Mendekati limit" : row.level === "none" ? "Tanpa budget" : "✅ Aman";
+  const status = row.level === "over" ? `<span class="dot bad"></span>Melebihi budget` : row.level === "warn" ? `<span class="dot warn"></span>Mendekati limit` : row.level === "none" ? `<span class="dot none"></span>Tanpa budget` : `<span class="dot good"></span>Aman`;
   return `<div class="budget-row">
     <div class="budget-head"><strong>${escapeHTML(row.category)}</strong><span class="muted">${money(row.actual)}${row.planned > 0 ? ` / ${money(row.planned)}` : ""}</span></div>
     <div class="progress ${row.level}"><span style="width:${width}%"></span></div>
@@ -862,7 +953,7 @@ function renderRecap() {
     </div>
     <section class="card kv" style="margin-top:12px"><div class="card-header"><div><h3>Pembukuan ${monthLabel(state.activeMonth)}</h3><p class="muted">Ringkasan pembukuan lengkap bulan aktif: omzet, gross profit, pengeluaran, dan net profit sesungguhnya.</p></div></div>
       ${kv("Omzet", money(np.income))}${kv("Gross Profit (margin penjualan)", money(np.grossProfit))}${kv("Total Pengeluaran", money(np.expenses))}
-      <div class="kv-row net-row"><span>Net Profit (real)</span><strong class="${np.isProfit ? "good-text" : "bad-text"}">${money(np.net)} ${np.isProfit ? "🟢" : "🔴"}</strong></div>
+      <div class="kv-row net-row"><span>Net Profit (real)</span><strong class="${np.isProfit ? "good-text" : "bad-text"}"><span class="dot ${np.isProfit ? "good" : "bad"}"></span>${money(np.net)}</strong></div>
     </section>
     <div class="grid two" style="margin-top:12px">
       <section class="card kv"><div class="card-header"><div><h3>Highlight Semua Bulan</h3><p class="muted">Ringkasan performa sepanjang waktu.</p></div></div>
@@ -992,6 +1083,8 @@ if (typeof module !== "undefined" && module.exports) {
     netProfit,
     buildCashflow,
     budgetVsActual,
+    cashflowChart,
+    compactRupiah,
     carryOverRecurring,
     applyExpenseFilters,
     getMonthKey,
