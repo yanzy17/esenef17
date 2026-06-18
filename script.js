@@ -399,7 +399,7 @@ function setupShell() {
     state.activeMonth = event.target.value;
     render();
   });
-  $("#copySummaryBtn").addEventListener("click", copyMonthSummary);
+  $("#copySummaryBtn")?.addEventListener("click", copyMonthSummary);
   $("#quickAddFab")?.addEventListener("click", () => { state.route = "tambah"; location.hash = "tambah"; render(); setTimeout(() => document.querySelector('[data-tab="quick"]')?.click(), 0); });
   $("#importFile").addEventListener("change", handleImportFile);
   window.addEventListener("hashchange", () => {
@@ -471,7 +471,8 @@ function render() {
 }
 
 function metric(label, value, hint = "", cls = "") {
-  return `<article class="card metric ${cls}"><span class="label">${label}</span><span class="value">${value}</span>${hint ? `<span class="hint">${hint}</span>` : ""}</article>`;
+  const iconCls = cls.includes("good") ? "good" : cls.includes("bad") ? "bad" : "neutral";
+  return `<article class="card metric ${cls}"><span class="label"><span class="metric-icon ${iconCls}"></span>${label}</span><span class="value">${value}</span>${hint ? `<span class="hint">${hint}</span>` : ""}</article>`;
 }
 
 // Compact secondary statistic, grouped inside a single card to reduce visual density.
@@ -492,13 +493,14 @@ function renderDashboard() {
   const remaining = Math.max(0, target - sum.omzet);
   const lastTx = [...monthTx].sort((a, b) => new Date(b.date) - new Date(a.date) || number(b.createdAt) - number(a.createdAt)).slice(0, 4);
   view.innerHTML = `
+    <div class="dash-greeting"><h2>Dashboard Keuangan</h2><p>Menampilkan catatan keuangan bulan aktif.</p></div>
     <div class="month-chips">${allMonthKeys().slice(0, 12).map((key) => `<button class="chip ${key === state.activeMonth ? "active" : ""}" data-month="${key}" type="button">${shortMonthLabel(key)}</button>`).join("")}</div>
-    <div class="grid three primary-metrics" style="margin-top:14px">
+    <div class="grid three primary-metrics" style="margin-top:16px">
       ${metric("Omzet", money(sum.omzet), monthLabel(state.activeMonth), "good")}
       ${metric("Net Profit", money(np.net), np.isProfit ? `<span class="dot good"></span>Untung bersih` : `<span class="dot bad"></span>Rugi bersih`, np.isProfit ? "good" : "bad")}
       ${metric("Pengeluaran", money(np.expenses), `${expSum.count} catatan`, "bad")}
     </div>
-    <section class="card stat-group" style="margin-top:12px">
+    <section class="card stat-group" style="margin-top:16px">
       <div class="stat-grid">
         ${stat("Gross profit", money(sum.profit), `${sum.total} transaksi`, sum.profit < 0 ? "neg" : "")}
         ${stat("Modal", money(sum.modal), "Refund tidak dihitung")}
@@ -509,11 +511,11 @@ function renderDashboard() {
         ${stat("Omzet minggu ini", money(weekSum.omzet), `Profit ${money(weekSum.profit)} · ${weekSum.total} tx`)}
       </div>
     </section>
-    <section class="card" style="margin-top:12px">
+    <section class="card" style="margin-top:16px">
       <div class="card-header"><div><h3>Tren Cashflow Bulanan</h3><p class="muted">Net, uang masuk, dan keluar sepanjang waktu.</p></div><button class="btn secondary small" data-route="cashflow">Detail</button></div>
       ${cashflowChart(buildCashflow(state.activeMonth, "month"), (key) => shortMonthLabel(key))}
     </section>
-    <div class="grid two" style="margin-top:12px">
+    <div class="grid two" style="margin-top:16px">
       <section class="card target-card">
         <div class="card-header"><div><h3>Target Bulanan</h3><p class="muted">Progress ${monthLabel(state.activeMonth)}.</p></div><strong class="target-pct">${pct}%</strong></div>
         <form id="targetForm" class="inline-target">
@@ -528,7 +530,7 @@ function renderDashboard() {
         ${kv("Produk terlaris", sum.topProduct.label)}${kv("Sumber terbesar", `${sum.topPlatform.label} · ${money(sum.topPlatform.value)}`)}${kv("Pembayaran utama", sum.topPayment.label)}${kv("Margin profit", pctValue(sum.margin))}${kv("Kategori pengeluaran terbesar", expSum.topCategory.label)}${kv("Rasio pengeluaran vs omzet", pctValue(expenseRatio))}
       </section>
     </div>
-    <section class="card" style="margin-top:12px">
+    <section class="card" style="margin-top:16px">
       <div class="card-header"><div><h3>Transaksi Terbaru</h3><p class="muted">4 transaksi terakhir bulan aktif.</p></div><button class="btn secondary small" data-route="transaksi">Lihat Semua</button></div>
       ${lastTx.length ? renderTransactionCards(lastTx) : emptyState("Belum ada transaksi", "Mulai dari tombol + Catat Penjualan untuk mencatat pemasukan pertama.")}
     </section>`;
