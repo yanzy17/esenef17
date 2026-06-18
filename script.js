@@ -6,14 +6,14 @@ const PAYMENTS = ["QRIS DANA", "QRIS GoPay", "QRIS OVO", "QRIS ShopeePay", "Tran
 const STATUSES = ["Lunas", "Belum Lunas", "Refund"];
 const EXPENSE_CATEGORIES = ["Iklan/Ads", "Langganan Tools", "Kuota/Internet", "Listrik", "Operasional", "Fee Platform", "Gaji/Komisi", "Lainnya"];
 const navItems = [
-  { id: "dashboard", label: "Dashboard", icon: "🏠" },
-  { id: "tambah", label: "Tambah", icon: "➕" },
-  { id: "transaksi", label: "Transaksi", icon: "📒" },
-  { id: "pengeluaran", label: "Keluar", icon: "💸" },
-  { id: "cashflow", label: "Cashflow", icon: "💵" },
+  { id: "dashboard", label: "Dashboard", icon: "🏠", primary: true },
+  { id: "tambah", label: "Tambah", icon: "➕", primary: true },
+  { id: "transaksi", label: "Transaksi", icon: "📒", primary: true },
+  { id: "pengeluaran", label: "Keluar", icon: "💸", primary: true },
+  { id: "cashflow", label: "Cashflow", icon: "💵", primary: true },
   { id: "anggaran", label: "Anggaran", icon: "🎯" },
   { id: "produk", label: "Produk", icon: "📦" },
-  { id: "rekap", label: "Rekap", icon: "📊" },
+  { id: "rekap", label: "Rekap", icon: "📊", primary: true },
   { id: "pengaturan", label: "Atur", icon: "⚙️" }
 ];
 
@@ -347,21 +347,52 @@ function setRoute(route) {
   render();
 }
 
+function navLinkHTML(item) {
+  return `<button type="button" class="nav-link" data-route="${item.id}"><span class="ico">${item.icon}</span><span>${item.label}</span></button>`;
+}
+
+function closeNavMore() {
+  const sheet = $("#navMoreSheet");
+  if (sheet) sheet.setAttribute("hidden", "");
+  $("#navMoreBtn")?.setAttribute("aria-expanded", "false");
+}
+
 function setupShell() {
   document.documentElement.dataset.theme = db.settings.theme || "light";
-  [$("#bottomNav"), $("#sideNav")].forEach((nav) => {
-    if (!nav) return;
-    nav.innerHTML = navItems.map((item) => `
-      <button type="button" class="nav-link" data-route="${item.id}">
-        <span class="ico">${item.icon}</span><span>${item.label}</span>
-      </button>`).join("");
-  });
+  // Desktop sidebar shows every route; mobile bottom nav keeps the primary
+  // actions prominent and groups the less-used ones under a tidy "Lainnya" sheet.
+  const sideNav = $("#sideNav");
+  if (sideNav) sideNav.innerHTML = navItems.map(navLinkHTML).join("");
+  const bottomNav = $("#bottomNav");
+  if (bottomNav) {
+    const primary = navItems.filter((item) => item.primary);
+    const secondary = navItems.filter((item) => !item.primary);
+    bottomNav.innerHTML = primary.map(navLinkHTML).join("") +
+      `<button type="button" class="nav-link nav-more-btn" id="navMoreBtn" aria-haspopup="true" aria-expanded="false"><span class="ico">⋯</span><span>Lainnya</span></button>` +
+      `<div class="nav-more-sheet" id="navMoreSheet" role="menu" hidden>${secondary.map(navLinkHTML).join("")}</div>`;
+  }
   document.body.addEventListener("click", (event) => {
     const routeBtn = event.target.closest("[data-route]");
     if (routeBtn) {
       event.preventDefault();
       setRoute(routeBtn.dataset.route);
+      closeNavMore();
     }
+  });
+  $("#navMoreBtn")?.addEventListener("click", (event) => {
+    event.stopPropagation();
+    const sheet = $("#navMoreSheet");
+    const btn = $("#navMoreBtn");
+    if (!sheet) return;
+    const willOpen = sheet.hasAttribute("hidden");
+    sheet.toggleAttribute("hidden", !willOpen);
+    btn.setAttribute("aria-expanded", String(willOpen));
+  });
+  document.addEventListener("click", (event) => {
+    const sheet = $("#navMoreSheet");
+    if (!sheet || sheet.hasAttribute("hidden")) return;
+    if (event.target.closest("#navMoreSheet") || event.target.closest("#navMoreBtn")) return;
+    closeNavMore();
   });
   $("#themeToggle").addEventListener("click", toggleTheme);
   $("#monthSelect").addEventListener("change", (event) => {
@@ -378,13 +409,50 @@ function setupShell() {
       render();
     }
   });
-  if ("serviceWorker" in navigator) navigator.serviceWorker.register("service-worker.js").catch(console.warn);
+  setupServiceWorker();
+}
+
+// Register the service worker and auto-reload ONCE when a new version takes control,
+// so the newest assets are used without any manual hard refresh. This is purely
+// client-side cache/asset handling and NEVER clears or modifies localStorage —
+// the user's saved data (key "bukuKeuanganDigital:v1") is left completely untouched.
+function setupServiceWorker() {
+  if (!("serviceWorker" in navigator)) return;
+  let refreshing = false;
+  navigator.serviceWorker.addEventListener("controllerchange", () => {
+    // Guard against reload loops: only reload once when control passes to a new SW.
+    if (refreshing) return;
+    refreshing = true;
+    window.location.reload();
+  });
+  navigator.serviceWorker
+    .register("service-worker.js")
+    .then((registration) => {
+      // When an update is found, the new worker calls skipWaiting() + clients.claim()
+      // in service-worker.js, which fires "controllerchange" and triggers the single auto-reload above.
+      registration.addEventListener("updatefound", () => {
+        const installing = registration.installing;
+        if (!installing) return;
+        installing.addEventListener("statechange", () => {
+          if (installing.state === "installed" && navigator.serviceWorker.controller) {
+            // A newer version is ready and will take control automatically.
+          }
+        });
+      });
+      // Proactively check for a newer service worker whenever we come back online / regain focus.
+      const checkForUpdate = () => registration.update().catch(() => {});
+      window.addEventListener("online", checkForUpdate);
+      window.addEventListener("focus", checkForUpdate);
+    })
+    .catch(console.warn);
 }
 
 function syncNav() {
   const titles = { "tambah-pengeluaran": "Tambah Pengeluaran" };
   $("#pageTitle").textContent = navItems.find((item) => item.id === state.route)?.label || titles[state.route] || "Dashboard";
   document.querySelectorAll(".nav-link").forEach((link) => link.classList.toggle("active", link.dataset.route === state.route));
+  const activeItem = navItems.find((item) => item.id === state.route);
+  $("#navMoreBtn")?.classList.toggle("active", !!activeItem && !activeItem.primary);
   $("#themeToggle").textContent = db.settings.theme === "dark" ? "☀️" : "🌙";
 }
 
@@ -406,6 +474,11 @@ function metric(label, value, hint = "", cls = "") {
   return `<article class="card metric ${cls}"><span class="label">${label}</span><span class="value">${value}</span>${hint ? `<span class="hint">${hint}</span>` : ""}</article>`;
 }
 
+// Compact secondary statistic, grouped inside a single card to reduce visual density.
+function stat(label, value, hint = "", cls = "") {
+  return `<div class="stat ${cls}"><span class="stat-label">${label}</span><span class="stat-value">${value}</span>${hint ? `<span class="stat-hint">${hint}</span>` : ""}</div>`;
+}
+
 function renderDashboard() {
   const monthTx = getTransactionsForMonth();
   const sum = summarize(monthTx);
@@ -420,23 +493,22 @@ function renderDashboard() {
   const lastTx = [...monthTx].sort((a, b) => new Date(b.date) - new Date(a.date) || number(b.createdAt) - number(a.createdAt)).slice(0, 4);
   view.innerHTML = `
     <div class="month-chips">${allMonthKeys().slice(0, 12).map((key) => `<button class="chip ${key === state.activeMonth ? "active" : ""}" data-month="${key}" type="button">${shortMonthLabel(key)}</button>`).join("")}</div>
-    <div class="grid four compact-metrics" style="margin-top:12px">
-      ${metric("Omzet bulan ini", money(sum.omzet), monthLabel(state.activeMonth), "good")}
-      ${metric("Profit bulan ini", money(sum.profit), `${sum.total} transaksi`, sum.profit >= 0 ? "good" : "bad")}
-      ${metric("Modal bulan ini", money(sum.modal), "Refund tidak dihitung")}
-      ${metric("Transaksi bulan ini", sum.total, `${sum.lunas} lunas · ${sum.refund} refund`)}
+    <div class="grid three primary-metrics" style="margin-top:14px">
+      ${metric("Omzet", money(sum.omzet), monthLabel(state.activeMonth), "good")}
+      ${metric("Net Profit", money(np.net), np.isProfit ? `<span class="dot good"></span>Untung bersih` : `<span class="dot bad"></span>Rugi bersih`, np.isProfit ? "good" : "bad")}
+      ${metric("Pengeluaran", money(np.expenses), `${expSum.count} catatan`, "bad")}
     </div>
-    <div class="grid four mini-metrics" style="margin-top:12px">
-      ${metric("Omzet hari ini", money(todaySum.omzet), `${todaySum.total} transaksi`, "good")}
-      ${metric("Profit hari ini", money(todaySum.profit), "Hari ini", todaySum.profit >= 0 ? "good" : "bad")}
-      ${metric("Omzet minggu ini", money(weekSum.omzet), `Profit ${money(weekSum.profit)} · ${weekSum.total} tx`)}
-      ${metric("Belum lunas", money(sum.unpaidAmount), `${sum.belum} transaksi`, "warn")}
-    </div>
-    <div class="grid three net-metrics" style="margin-top:12px">
-      ${metric("Total Income", money(np.income), monthLabel(state.activeMonth), "good")}
-      ${metric("Total Pengeluaran", money(np.expenses), `${expSum.count} pengeluaran`, "bad")}
-      ${metric("Net Profit (real)", money(np.net), np.isProfit ? `<span class="dot good"></span>Untung` : `<span class="dot bad"></span>Rugi`, np.isProfit ? "good" : "bad")}
-    </div>
+    <section class="card stat-group" style="margin-top:12px">
+      <div class="stat-grid">
+        ${stat("Gross profit", money(sum.profit), `${sum.total} transaksi`, sum.profit < 0 ? "neg" : "")}
+        ${stat("Modal", money(sum.modal), "Refund tidak dihitung")}
+        ${stat("Transaksi", sum.total, `${sum.lunas} lunas · ${sum.refund} refund`)}
+        ${stat("Belum lunas", money(sum.unpaidAmount), `${sum.belum} transaksi`)}
+        ${stat("Omzet hari ini", money(todaySum.omzet), `${todaySum.total} transaksi`)}
+        ${stat("Profit hari ini", money(todaySum.profit), "Hari ini", todaySum.profit < 0 ? "neg" : "")}
+        ${stat("Omzet minggu ini", money(weekSum.omzet), `Profit ${money(weekSum.profit)} · ${weekSum.total} tx`)}
+      </div>
+    </section>
     <section class="card" style="margin-top:12px">
       <div class="card-header"><div><h3>Tren Cashflow Bulanan</h3><p class="muted">Net, uang masuk, dan keluar sepanjang waktu.</p></div><button class="btn secondary small" data-route="cashflow">Detail</button></div>
       ${cashflowChart(buildCashflow(state.activeMonth, "month"), (key) => shortMonthLabel(key))}
