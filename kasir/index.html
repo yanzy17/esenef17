@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="description" content="Kasir Sederhana adalah aplikasi POS ringan untuk catat transaksi penjualan dan sinkron otomatis ke Google Sheets." />
+  <meta name="theme-color" content="#16a34a" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Kasir Sederhana" />
+  <title>Kasir Sederhana</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="../icon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="../icon.svg" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="Navigasi desktop">
+      <a class="brand" href="#kasir" data-route="kasir" aria-label="Kasir Sederhana">
+        <span class="brand-mark">KS</span>
+        <span>
+          <strong>Kasir</strong>
+          <small>Sederhana</small>
+        </span>
+      </a>
+      <nav class="side-nav" id="sideNav"></nav>
+      <div class="side-panel">
+        <span class="side-panel-icon">🧾</span>
+        <p>Transaksi tersimpan offline dan otomatis sinkron ke Google Sheets ketika online.</p>
+        <p class="side-link"><a href="../" aria-label="Buka Buku Keuangan Digital">Buku Keuangan ↗</a></p>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Kasir Sederhana · POS</p>
+          <h1 id="pageTitle">Kasir</h1>
+        </div>
+        <div class="top-actions">
+          <span class="sync-pill" id="syncPill" title="Status sinkronisasi">⟳ <span id="syncPillText">Memuat…</span></span>
+          <button class="icon-btn" id="themeToggle" type="button" aria-label="Toggle dark mode">🌙</button>
+        </div>
+      </header>
+
+      <section id="viewContainer" class="view-container" aria-live="polite"></section>
+    </main>
+  </div>
+
+  <nav class="bottom-nav" id="bottomNav" aria-label="Navigasi mobile"></nav>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <input type="file" id="importFile" accept="application/json" hidden />
+  <script src="script.js"></script>
+</body>
+</html>
