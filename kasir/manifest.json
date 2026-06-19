@@ -1,9 +1,10 @@
 {
+  "id": "/esenef17/kasir/",
   "name": "Kasir Sederhana",
   "short_name": "Kasir",
   "description": "POS / kasir ringan dengan sinkron otomatis ke Google Sheets via Apps Script.",
-  "start_url": "./index.html",
-  "scope": "./",
+  "start_url": "/esenef17/kasir/",
+  "scope": "/esenef17/kasir/",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#f4f6f8",
@@ -11,7 +12,7 @@
   "categories": ["business", "productivity", "finance"],
   "icons": [
     {
-      "src": "../icon.svg",
+      "src": "/esenef17/icon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any maskable"

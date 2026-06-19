@@ -1326,6 +1326,19 @@ function init() {
   applyInitialTheme();
   bindGlobalEvents();
   renderRoute();
+
+  // Register the kasir-scoped service worker so Kasir is treated as its own
+  // installable PWA (separate from Buku Keuangan / App 1 at the repo root).
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("./service-worker.js", { scope: "./" })
+      .catch(console.warn);
+    let refreshing = false;
+    navigator.serviceWorker.addEventListener("controllerchange", () => {
+      if (refreshing) return;
+      refreshing = true;
+      window.location.reload();
+    });
+  }
 }
 
 if (typeof document !== "undefined") {

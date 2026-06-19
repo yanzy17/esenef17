@@ -10,6 +10,12 @@ URL aplikasi (jika di-host di GitHub Pages):
 
 ---
 
+## Install sebagai PWA terpisah
+
+Aplikasi ini bisa di-install sebagai PWA terpisah dari Buku Keuangan. Buka URL `/kasir/` di Chrome/Safari → menu titik tiga → **"Install app"** / **"Tambah ke Layar Utama"**. Setelah patch ini, Kasir akan muncul sebagai aplikasi tersendiri di home screen (ikon, nama, dan jendela aplikasinya sendiri), bukan menyatu dengan Buku Keuangan. Dua aplikasi tetap independen — masing-masing punya `manifest.id`, `scope`, dan service worker sendiri, sehingga browser memperlakukannya sebagai dua PWA berbeda.
+
+---
+
 ## 1. Apa yang Akan Kita Setup
 
 1. Buat satu Google Sheet kosong sebagai database transaksi.
