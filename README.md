@@ -1,3 +1,4 @@
+**Buku Keuangan Digital** adalah produk dari **Esenef** (https://esenef.my.id).
 # Buku Keuangan Digital
 
 **Buku Keuangan Digital** adalah aplikasi web/PWA pure frontend untuk catatan pemasukan, catatan penjualan, buku keuangan digital, dan sales tracker manual dari HP. Aplikasi tetap fokus pada pencatatan transaksi manual, bukan login, backend, database online, atau tool promosi.
