@@ -8,7 +8,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Buku Keuangan" />
-  <title>Buku Keuangan Digital — Esenef</title>
+  <title>Buku Keuangan Digital – Esenef</title>
   <link rel="manifest" href="manifest.json" />
   <link rel="icon" href="icon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="icon.svg" />
@@ -45,6 +45,21 @@
       <section id="viewContainer" class="view-container" aria-live="polite"></section>
     </main>
   </div>
+
+<section id="market-brief" class="market-brief">
+  <h2>Ringkasan Pasar Hari Ini</h2>
+  <p class="mb-date" id="mb-date">Memuat data pasar…</p>
+  <div class="mb-grid">
+    <div class="mb-card"><span class="mb-label">Kurs USD → IDR</span><strong id="mb-usd">—</strong><small id="mb-usd-note"></small></div>
+    <div class="mb-card"><span class="mb-label">Emas / gram</span><strong id="mb-gold">—</strong><small>harga per gram dalam Rupiah</small></div>
+    <div class="mb-card"><span class="mb-label">Bitcoin (BTC)</span><strong id="mb-btc">—</strong><small id="mb-btc-change"></small></div>
+    <div class="mb-card"><span class="mb-label">S&amp;P 500 (SPY)</span><strong id="mb-spy">—</strong><small id="mb-spy-change"></small></div>
+  </div>
+  <p class="mb-news"><strong>Berita:</strong> <a id="mb-news-link" href="#" target="_blank" rel="noopener">—</a> <span id="mb-news-source"></span></p>
+  <p class="mb-summary" id="mb-summary"></p>
+  <p class="mb-foot">Data via AIsa (XE, CoinGecko, financialdatasets.ai). Bukan nasihat investasi.</p>
+</section>
+<script src="market-brief.js"></script>
 
   <button class="fab-add" id="quickAddFab" type="button" aria-label="Catat Penjualan">+ Catat Penjualan</button>
   <nav class="bottom-nav" id="bottomNav" aria-label="Navigasi mobile"></nav>
