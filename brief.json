@@ -1,0 +1,34 @@
+{
+  "date": "2026-11-26",
+  "generated_at_utc": "2026-11-26T02:27:11+00:00",
+  "usd_idr": 18322.51,
+  "usd_idr_timestamp": "2026-11-25T20:30:00Z",
+  "gold_idr_per_gram": 2117802,
+  "gold_idr_per_oz": 65871019.35,
+  "gold_timestamp": "2026-11-26T02:24:00Z",
+  "btc_usd": 60936,
+  "btc_change_24h_pct": 3.2224017103398124,
+  "spy_price": 717.02,
+  "spy_day_change": -1.76,
+  "spy_day_change_pct": -0.24,
+  "spy_time": "2026-11-25T23:26:10Z",
+  "news": [
+    {
+      "title": "Stock Market News, Nov. 25, 2026: Stocks Pare Losses as Tech Selloff Eases - WSJ",
+      "source": "WSJ",
+      "url": "https://www.wsj.com/livecoverage/stock-market-today-dow-sp-500-nasdaq-11-25-2026",
+      "date": "2026-11-26T00:43:00+00:00"
+    }
+  ],
+  "summary_id": "Kurs dolar naik sedikit, emas masih tinggi, dan Bitcoin melonjak—tapi pasar saham agak lesu. Buat tabungan, ini artinya nilai uangmu di mata global sedikit berubah, tapi belum ada yang mesti panik.",
+  "costs_usd": {
+    "xe_usd_idr_usd": 0.0005,
+    "xe_xau_idr_usd": 0.0005,
+    "coingecko_btc_usd": 0.008,
+    "spy_snapshot_usd": 0.02,
+    "market_news_usd": 0.02,
+    "summary_llm_usd": 1.7e-05
+  },
+  "cost_total_usd": 0.049017,
+  "source": "AIsa v1 API (XE, CoinGecko, financialdatasets.ai, qwen-flash)"
+}
